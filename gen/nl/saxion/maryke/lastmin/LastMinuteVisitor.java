@@ -1,4 +1,4 @@
-// Generated from D:/School Projects/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
+// Generated from C:/Users/yketd/Documents/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
 package nl.saxion.maryke.lastmin;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface LastMinuteVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link LastMinuteParser#statement}.
+	 * Visit a parse tree produced by {@link LastMinuteParser#stateament}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStatement(LastMinuteParser.StatementContext ctx);
+	T visitStateament(LastMinuteParser.StateamentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link LastMinuteParser#vardecl}.
 	 * @param ctx the parse tree
