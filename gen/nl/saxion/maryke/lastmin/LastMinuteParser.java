@@ -23,7 +23,7 @@ public class LastMinuteParser extends Parser {
 		OPENPAR=26, CLOSEPAR=27, OPENBRACES=28, CLOSEBRACES=29, PLUS=30, MINUS=31, 
 		TIMES=32, DIVIDE=33, MODULO=34, POWER=35, WS=36;
 	public static final int
-		RULE_stateament = 0, RULE_vardecl = 1, RULE_funcdecl = 2, RULE_funcbody = 3, 
+		RULE_statement = 0, RULE_vardecl = 1, RULE_funcdecl = 2, RULE_funcbody = 3, 
 		RULE_identifier = 4, RULE_loop = 5, RULE_lm_if = 6, RULE_whileloop = 7, 
 		RULE_forloop = 8, RULE_calculation = 9, RULE_condition = 10, RULE_lm_boolean = 11, 
 		RULE_operator = 12, RULE_funccall = 13, RULE_addition = 14, RULE_subtraction = 15, 
@@ -32,7 +32,7 @@ public class LastMinuteParser extends Parser {
 		RULE_varvalchar = 24, RULE_varvalarray = 25, RULE_params = 26, RULE_bool = 27, 
 		RULE_extendedparams = 28;
 	public static final String[] ruleNames = {
-		"stateament", "vardecl", "funcdecl", "funcbody", "identifier", "loop", 
+		"statement", "vardecl", "funcdecl", "funcbody", "identifier", "loop", 
 		"lm_if", "whileloop", "forloop", "calculation", "condition", "lm_boolean", 
 		"operator", "funccall", "addition", "subtraction", "multiplication", "divide", 
 		"increment", "decrement", "varvalue", "arrayval", "varvalnum", "varvalstring", 
@@ -101,7 +101,7 @@ public class LastMinuteParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
-	public static class StateamentContext extends ParserRuleContext {
+	public static class StatementContext extends ParserRuleContext {
 		public List<VardeclContext> vardecl() {
 			return getRuleContexts(VardeclContext.class);
 		}
@@ -114,20 +114,20 @@ public class LastMinuteParser extends Parser {
 		public FuncdeclContext funcdecl(int i) {
 			return getRuleContext(FuncdeclContext.class,i);
 		}
-		public StateamentContext(ParserRuleContext parent, int invokingState) {
+		public StatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_stateament; }
+		@Override public int getRuleIndex() { return RULE_statement; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof LastMinuteVisitor ) return ((LastMinuteVisitor<? extends T>)visitor).visitStateament(this);
+			if ( visitor instanceof LastMinuteVisitor ) return ((LastMinuteVisitor<? extends T>)visitor).visitStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final StateamentContext stateament() throws RecognitionException {
-		StateamentContext _localctx = new StateamentContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_stateament);
+	public final StatementContext statement() throws RecognitionException {
+		StatementContext _localctx = new StatementContext(_ctx, getState());
+		enterRule(_localctx, 0, RULE_statement);
 		int _la;
 		try {
 			int _alt;

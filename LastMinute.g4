@@ -1,6 +1,6 @@
 grammar LastMinute;
 
-stateament: vardecl* funcdecl*;
+statement: vardecl* funcdecl*;
 
 vardecl:    identifier ((PLUS | MINUS | MODULO | DIVIDE | TIMES)? MAKEEQUAL)
            (varvalue | calculation | identifier | bool) ENDL;

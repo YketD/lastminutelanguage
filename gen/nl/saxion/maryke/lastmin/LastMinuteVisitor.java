@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface LastMinuteVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link LastMinuteParser#stateament}.
+	 * Visit a parse tree produced by {@link LastMinuteParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStateament(LastMinuteParser.StateamentContext ctx);
+	T visitStatement(LastMinuteParser.StatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link LastMinuteParser#vardecl}.
 	 * @param ctx the parse tree
