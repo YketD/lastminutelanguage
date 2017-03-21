@@ -21,6 +21,9 @@ public class Main
 
             LastMinuteParser parser = new LastMinuteParser(tokens);
             LastMinuteParser.StatementContext programTree = parser.statement();
+
+            TypeChecker checker = new TypeChecker();
+            Types value = checker.visit(programTree);
         }
         catch (IOException e)
         {

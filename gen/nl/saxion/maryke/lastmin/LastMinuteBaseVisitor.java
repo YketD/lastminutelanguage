@@ -17,105 +17,136 @@ public class LastMinuteBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStatement(LastMinuteParser.StatementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStatement(LastMinuteParser.StatementContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitVardecl(LastMinuteParser.VardeclContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVardecl(LastMinuteParser.VardeclContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFuncbody(LastMinuteParser.FuncbodyContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFuncbody(LastMinuteParser.FuncbodyContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIdentifier(LastMinuteParser.IdentifierContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIdentifier(LastMinuteParser.IdentifierContext ctx) {
+		return visitChildren(ctx);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLoop(LastMinuteParser.LoopContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLoop(LastMinuteParser.LoopContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLm_if(LastMinuteParser.Lm_ifContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLm_if(LastMinuteParser.Lm_ifContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWhileloop(LastMinuteParser.WhileloopContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWhileloop(LastMinuteParser.WhileloopContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitForloop(LastMinuteParser.ForloopContext ctx) { return visitChildren(ctx); }
+	@Override public T visitForloop(LastMinuteParser.ForloopContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCalculation(LastMinuteParser.CalculationContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCalculation(LastMinuteParser.CalculationContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCondition(LastMinuteParser.ConditionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCondition(LastMinuteParser.ConditionContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLm_boolean(LastMinuteParser.Lm_booleanContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLm_boolean(LastMinuteParser.Lm_booleanContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitOperator(LastMinuteParser.OperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOperator(LastMinuteParser.OperatorContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFunccall(LastMinuteParser.FunccallContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFunccall(LastMinuteParser.FunccallContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAddition(LastMinuteParser.AdditionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAddition(LastMinuteParser.AdditionContext ctx) {
+		return visitChildren(ctx);
+	}
 	/**
 	 * {@inheritDoc}
 	 *

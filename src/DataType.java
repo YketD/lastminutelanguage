@@ -1,0 +1,11 @@
+/**
+ * Created by yketd on 21-3-2017.
+ */
+public class DataType extends Type {
+    private Types dataType;
+
+
+    public DataType(Types dataType) {
+        this.dataType = dataType;
+    }
+}
