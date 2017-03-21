@@ -16,7 +16,7 @@ public class Main
 
         try
         {
-            lexer = new LastMinuteLexer(new ANTLRFileStream("LastMinute.g4"));
+            lexer = new LastMinuteLexer(new ANTLRFileStream("MyApp.lm"));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
             LastMinuteParser parser = new LastMinuteParser(tokens);

@@ -1,4 +1,4 @@
-// Generated from D:/school/antlr_grammar\LastMinute.g4 by ANTLR 4.6
+// Generated from D:/School Projects/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
 package nl.saxion.maryke.lastmin;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

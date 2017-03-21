@@ -1,0 +1,15 @@
+iAmGlobal: true;
+
+isitGlobal()
+{
+    if (iAmGlobal == true)
+    {
+        answer: true;
+    }
+    else
+    {
+        answer: false;
+    }
+
+    return answer;
+}

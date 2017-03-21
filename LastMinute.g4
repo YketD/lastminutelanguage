@@ -5,7 +5,7 @@ statement: vardecl* funcdecl*;
 vardecl:    identifier ((PLUS | MINUS | MODULO | DIVIDE | TIMES)? MAKEEQUAL)
            (varvalue | calculation | identifier | bool) ENDL;
 
-funcdecl:   identifier OPENPAR params CLOSEPAR OPENBRACES funcbody (RETURN (identifier| varvalue))? CLOSEBRACES;
+funcdecl:   identifier OPENPAR params CLOSEPAR OPENBRACES funcbody (RETURN (identifier| varvalue) ENDL)? CLOSEBRACES;
 
 funcbody: (vardecl | funccall | loop | lm_if | (calculation ENDL))*;
 identifier:     TEXT;
