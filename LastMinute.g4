@@ -1,9 +1,14 @@
 grammar LastMinute;
 
-statement: vardecl* funcdecl*;
+// First all the global variables, then the functions
+statement
+    :   vardecl*
+        funcdecl*
+    ;
 
+//The variable declaration
 vardecl:    identifier ((PLUS | MINUS | MODULO | DIVIDE | TIMES)? MAKEEQUAL)
-           (varvalue | calculation | identifier | bool) ENDL;
+           (varvalue | calculation+ | identifier | bool) ENDL;
 
 funcdecl:   identifier OPENPAR params CLOSEPAR OPENBRACES funcbody (RETURN (identifier| varvalue) ENDL)? CLOSEBRACES;
 
@@ -20,8 +25,8 @@ whileloop:WHILE OPENPAR condition CLOSEPAR OPENBRACES funcbody CLOSEBRACES;
 
 forloop: FOR OPENPAR vardecl condition ENDL calculation CLOSEPAR OPENBRACES funcbody CLOSEBRACES;
 
-calculation:    (varvalnum | identifier) ((multiplication | divide | addition | subtraction | increment | decrement) |
-       (OPENPAR (varvalnum | identifier)  (multiplication | divide | addition | subtraction | increment | decrement) CLOSEPAR));
+calculation:    ((varvalnum | identifier) ((multiplication | divide | addition | subtraction | increment | decrement)+) |
+       (OPENPAR (varvalnum | identifier)  (multiplication | divide | addition | subtraction | increment | decrement)+ CLOSEPAR));
 condition:(
 ((NOT? (identifier | bool)) | lm_boolean)
 ((AND lm_boolean) | (OR lm_boolean))*);
