@@ -123,7 +123,7 @@ funcdecl
         :   IF
             conditionalbody
             ((ELSE if_else)*
-             (ELSE body))?
+             (ELSE body)?)
         ;
 
         loop
@@ -139,7 +139,7 @@ funcdecl
         forloop
         :   FOR
             OPENPAR
-            vardecl ENDL condition ENDL calculation
+            vardecl condition ENDL calculation
             CLOSEPAR
             body
         ;
