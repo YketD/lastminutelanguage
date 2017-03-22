@@ -1,62 +1,189 @@
 grammar LastMinute;
 
-// First all the global variables, then the functions
+/*
+PARSER RULES
+*/
+
+// First all the global variables, then all the functions
 statement
     :   vardecl*
         funcdecl*
     ;
 
-//The variable declaration
-vardecl:    identifier ((PLUS | MINUS | MODULO | DIVIDE | TIMES)? MAKEEQUAL)
-           (varvalue | calculation+ | identifier | bool) ENDL;
+    // The variable declaration
+    vardecl
+    :       identifier MAKEEQUAL varvalue ENDL   #SetVariable;
 
-funcdecl:   identifier OPENPAR params CLOSEPAR OPENBRACES funcbody (RETURN (identifier| varvalue) ENDL)? CLOSEBRACES;
+        //All possible variable value's
+        varvalue
+    :       varvalnum
+    |       varvalstring
+    |       varvalchar
+    |       varvalarray
+    |       varvalbool
+    |       identifier
+    |       calculation
+    ;
 
-funcbody: (vardecl | funccall | loop | lm_if | (calculation ENDL))*;
-identifier:     TEXT;
+            //Integer
+            varvalnum
+    :   MINUS? INT
+    ;
 
-loop: forloop | whileloop;
+            //String
+            varvalstring
+    :   STRING
+    ;
 
-lm_if:      IF OPENPAR condition CLOSEPAR OPENBRACES funcbody CLOSEBRACES
-    (ELSE IF OPENPAR condition CLOSEPAR OPENBRACES funcbody CLOSEBRACES)*
-    (ELSE OPENBRACES funcbody CLOSEBRACES)?
+            //Character
+            varvalchar
+    :   CHAR
+    ;
+
+            //Array
+            varvalarray
+    :   LT
+        (varvalue (COMMA varvalue)*)+
+        GT
+    ;
+
+            //Boolean
+            varvalbool
+    :   LITERALBOOL
+    ;
+
+                LITERALBOOL
+        :   'true'
+        |   'false'
+        ;
+
+//Function Declarations
+funcdecl
+:           identifier
+            OPENPAR params CLOSEPAR
+            OPENBRACES
+            funcbody* RETURN varvalue ENDL
+            CLOSEBRACES
+            ;
+
+    //parameters, zero or one to start, when one, the next all need to have comma's in front
+    params
+    :   (
+        identifier
+        (COMMA identifier)*
+        )?
+    ;
+
+    extendedparams
+    :   (
+        varvalue
+        (COMMA varvalue)*
+        )?
+    ;
+
+    funcbody
+    :   vardecl
+    |   funccall
+    |   loop
+    |   if_else
+    |   calculation
+    ;
+
+        body
+        :
+        OPENBRACES funcbody* CLOSEBRACES
+        ;
+
+        conditionalbody
+        :
+            OPENPAR condition CLOSEPAR
+            body
+        ;
+
+        condition
+        :   NOT condition                           #InverseCondition
+        |   varvalue EQUALS varvalue                #CompareCondition
+        |   varvalue NOTEQUAL varvalue            #NotEqualCondition
+        |   condition AND condition                 #AndCondition
+        |   condition OR condition                  #OrCondition
+        |   varvalbool                              #BoolCondition
+        |   varvalue operator varvalue            #OperatorCondition
+        ;
+
+        operator
+        :   LT
+        |   GT
+        |   EQUALS
+        |   NOTEQUAL
+        |   GTE
+        |   LTE
+        ;
+
+        if_else
+        :   IF
+            conditionalbody
+            ((ELSE if_else)*
+             (ELSE body)?)
+        ;
+
+        loop
+        :   forloop
+        |   whileloop
+        ;
+
+        whileloop
+        :   WHILE
+            conditionalbody
+        ;
+
+        forloop
+        :   FOR
+            OPENPAR
+            vardecl condition ENDL calculation
+            CLOSEPAR
+            body
+        ;
+
+    funccall
+    :   identifier
+        OPENPAR extendedparams CLOSEPAR
+        ENDL
+    ;
+
+identifier
+:     TEXT
 ;
-whileloop:WHILE OPENPAR condition CLOSEPAR OPENBRACES funcbody CLOSEBRACES;
 
-forloop: FOR OPENPAR vardecl condition ENDL calculation CLOSEPAR OPENBRACES funcbody CLOSEBRACES;
+//Calculations
+calculation
+    :   addition
+    |   multiplication
+    |   power
 
-calculation:    ((varvalnum | identifier) ((multiplication | divide | addition | subtraction | increment | decrement)+) |
-       (OPENPAR (varvalnum | identifier)  (multiplication | divide | addition | subtraction | increment | decrement)+ CLOSEPAR));
-condition:(
-((NOT? (identifier | bool)) | lm_boolean)
-((AND lm_boolean) | (OR lm_boolean))*);
+    ;
 
-lm_boolean: (NOT?(varvalnum | identifier) calculation* operator (varvalnum | identifier)) | NOT? bool | NOT? identifier;
-operator : LT|GT|EQUALS|NOTEQUAL|GTE|LTE;
-funccall: identifier OPENPAR extendedparams CLOSEPAR ENDL;
-//calculations
-addition: PLUS (varvalnum | identifier);
-subtraction: MINUS (varvalnum | identifier);
-multiplication: TIMES (varvalnum | identifier);
-divide: DIVIDE (varvalnum | identifier);
-increment: PLUS PLUS;
-decrement: MINUS MINUS;
+    addition
+    :   value  ((PLUS | MINUS)  (value | calculation))+
+    ;
 
-varvalue:       varvalnum | varvalstring | varvalchar | varvalarray ;
-arrayval:       varvalnum | varvalstring | varvalchar;
-varvalnum:      MINUS? INT;
-varvalstring:   STRING;
-varvalchar:     CHAR;
-varvalarray:    LT ((arrayval (COMMA arrayval)*)+) GT;
+    multiplication
+    :   value  ((TIMES | DIVIDE) (value | calculation))+
+    ;
 
-params:         (identifier (COMMA identifier)*)?;
-bool: TRUE | FALSE;
-extendedparams:
-            ((identifier | calculation | varvalnum | funccall)
-      (COMMA (identifier | calculation | varvalnum | funccall))*)?;
+    power
+    :   value  ((MODULO | POWER) (value | calculation))+
+    ;
 
-STRING: QUOTE   [ a-zA-Z]+  QUOTE;
-CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
+    value
+    :   INT
+    |   identifier
+    |   OPENPAR addition CLOSEPAR
+    ;
+
+
+/*
+LEXER RULES
+*/
 
 //bool
 EQUALS:     '==';
@@ -77,7 +204,7 @@ FOR: 'for';
 WHILE: 'while';
 IF: 'if';
 ELSE: 'else';
-TEXT:       [a-zA-Z]+;
+
 INT:        [0-9]+;
 
 TRUE: 'true' | '1';
@@ -98,9 +225,11 @@ CLOSEBRACES:    '}';
 PLUS:       '+';
 MINUS:      '-';
 TIMES:      '*';
-DIVIDE:     '/';
+DIVIDE:        '/';
 MODULO:     '%';
 POWER:      '^';
-
+STRING: QUOTE   [ a-zA-Z]+  QUOTE;
+CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
+TEXT:       [a-zA-Z]+;
 
 WS: [ \n\t\r]+ -> skip;
