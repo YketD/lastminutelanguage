@@ -43,4 +43,8 @@ public class Scope {
         return parentScope;
     }
 
+    public Scope getParentScope()
+    {
+        return parentScope;
+    }
 }
