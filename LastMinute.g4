@@ -13,8 +13,8 @@ statement
     ;
 
     comment
-    :
-            COMMENT;
+    :       MULTCOMMENT
+    |       COMMENT;
 
     // The variable declaration
     vardecl
@@ -93,6 +93,7 @@ funcdecl
     |   loop
     |   if_else
     |   calculation
+    |   comment
     ;
 
         body
@@ -239,8 +240,13 @@ CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
 
 TEXT:       [a-zA-Z]+;
 COMMENT: (COMMENT1|COMMENT2|COMMENT3) ~('\r' | '\n')* ('\r' | '\n');
+MULTCOMMENT: MULTCOMMENTOPEN ANYCHAR MULTCOMMENTCLOSE;
 COMMENT1: '--';
 COMMENT2: '//';
 COMMENT3: '##';
+MULTCOMMENTOPEN: '/*';
+MULTCOMMENTCLOSE: '*/';
+
+ANYCHAR: .*?;
 
 WS: [ \n\t\r]+ -> skip;
