@@ -6,9 +6,15 @@ PARSER RULES
 
 // First all the global variables, then all the functions
 statement
-    :   vardecl*
-        funcdecl*
+    :
+        (comment|
+        vardecl|
+        funcdecl)*
     ;
+
+    comment
+    :
+            COMMENT;
 
     // The variable declaration
     vardecl
@@ -230,6 +236,11 @@ MODULO:     '%';
 POWER:      '^';
 STRING: QUOTE   [ a-zA-Z]+  QUOTE;
 CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
+
 TEXT:       [a-zA-Z]+;
+COMMENT: (COMMENT1|COMMENT2|COMMENT3) ~('\r' | '\n')* ('\r' | '\n');
+COMMENT1: '--';
+COMMENT2: '//';
+COMMENT3: '##';
 
 WS: [ \n\t\r]+ -> skip;
