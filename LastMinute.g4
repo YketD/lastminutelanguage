@@ -24,6 +24,11 @@ statement
     // The variable declaration
     vardecl
     :       identifier MAKEEQUAL varvalue ENDL   #SetVariable;
+    |       identifier INCREMENT ENDL
+    |       vartrans;
+
+    vartrans
+    :       identifier (PLUS|MINUS|TIMES|DIVIDE|MODULO) MAKEEQUAL varvalue ENDL;
 
         //All possible variable value's
         varvalue
