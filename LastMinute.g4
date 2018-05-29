@@ -8,6 +8,7 @@ PARSER RULES
 statement
     :
         (comment|
+        varcalc|
         vardecl|
         funcdecl)*
     ;
@@ -15,6 +16,10 @@ statement
     comment
     :       MULTCOMMENT
     |       COMMENT;
+
+    varcalc
+    :
+        identifier (INCVAR|DECVAR) ENDL;
 
     // The variable declaration
     vardecl
@@ -89,6 +94,7 @@ funcdecl
 
     funcbody
     :   vardecl
+    |   varcalc
     |   funccall
     |   loop
     |   if_else
@@ -235,17 +241,19 @@ TIMES:      '*';
 DIVIDE:        '/';
 MODULO:     '%';
 POWER:      '^';
-STRING: QUOTE   ~('\r' | '\n')*  QUOTE;
+STRING: QUOTE   ANYCHAR  QUOTE;
 CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
 
 TEXT:       [a-zA-Z]+;
-COMMENT: (COMMENT1|COMMENT2|COMMENT3) ~('\r' | '\n')* ('\r' | '\n');
+COMMENT: (COMMENT2|COMMENT3) ~('\r' | '\n')* ('\r' | '\n');
 MULTCOMMENT: MULTCOMMENTOPEN ANYCHAR MULTCOMMENTCLOSE;
-COMMENT1: '--';
 COMMENT2: '//';
 COMMENT3: '##';
 MULTCOMMENTOPEN: '/*';
 MULTCOMMENTCLOSE: '*/';
+
+INCVAR: '++';
+DECVAR: '--';
 
 ANYCHAR: .*?;
 
