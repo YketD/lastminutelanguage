@@ -260,6 +260,6 @@ MULTCOMMENTCLOSE: '*/';
 INCVAR: '++';
 DECVAR: '--';
 
-ANYCHAR: .*?;
+fragment ANYCHAR: .*?;
 
 WS: [ \n\t\r]+ -> skip;
