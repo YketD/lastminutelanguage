@@ -235,7 +235,7 @@ TIMES:      '*';
 DIVIDE:        '/';
 MODULO:     '%';
 POWER:      '^';
-STRING: QUOTE   [ a-zA-Z]+  QUOTE;
+STRING: QUOTE   ~('\r' | '\n')*  QUOTE;
 CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
 
 TEXT:       [a-zA-Z]+;
