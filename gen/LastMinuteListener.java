@@ -1,4 +1,4 @@
-// Generated from D:/School Projects/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
+// Generated from D:/School exercises/lmlanguage/lastminutelanguage\LastMinute.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -17,6 +17,40 @@ public interface LastMinuteListener extends ParseTreeListener {
 	 */
 	void exitStatement(LastMinuteParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LastMinuteParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void enterComment(LastMinuteParser.CommentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LastMinuteParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void exitComment(LastMinuteParser.CommentContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IncrementVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncrementVariable(LastMinuteParser.IncrementVariableContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IncrementVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code TransformVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransformVariable(LastMinuteParser.TransformVariableContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code TransformVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransformVariable(LastMinuteParser.TransformVariableContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code SetVariable}
 	 * labeled alternative in {@link LastMinuteParser#vardecl}.
 	 * @param ctx the parse tree
@@ -28,6 +62,16 @@ public interface LastMinuteListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSetVariable(LastMinuteParser.SetVariableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LastMinuteParser#vartrans}.
+	 * @param ctx the parse tree
+	 */
+	void enterVartrans(LastMinuteParser.VartransContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LastMinuteParser#vartrans}.
+	 * @param ctx the parse tree
+	 */
+	void exitVartrans(LastMinuteParser.VartransContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LastMinuteParser#varvalue}.
 	 * @param ctx the parse tree

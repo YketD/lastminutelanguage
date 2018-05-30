@@ -1,4 +1,4 @@
-// Generated from D:/School Projects/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
+// Generated from D:/School exercises/lmlanguage/lastminutelanguage\LastMinute.g4 by ANTLR 4.7
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -27,6 +27,42 @@ public class LastMinuteBaseListener implements LastMinuteListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterComment(LastMinuteParser.CommentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitComment(LastMinuteParser.CommentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIncrementVariable(LastMinuteParser.IncrementVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTransformVariable(LastMinuteParser.TransformVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransformVariable(LastMinuteParser.TransformVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSetVariable(LastMinuteParser.SetVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -34,6 +70,18 @@ public class LastMinuteBaseListener implements LastMinuteListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSetVariable(LastMinuteParser.SetVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVartrans(LastMinuteParser.VartransContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVartrans(LastMinuteParser.VartransContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -19,13 +19,13 @@ statement
 
     varcalc
     :
-        identifier (INCVAR|DECVAR) ENDL;
+        identifier (INCVAR|DECVAR) ENDL         #IncrementVariable
+    |   vartrans                                #TransformVariable;
 
     // The variable declaration
     vardecl
-    :       identifier MAKEEQUAL varvalue ENDL      #SetVariable
-    |       identifier INCREMENT ENDL               #IncrementVariable
-    |       vartrans                                #TransformVariable;
+    :       identifier MAKEEQUAL varvalue ENDL      #SetVariable;
+
 
     vartrans
     :       identifier (PLUS|MINUS|TIMES|DIVIDE|MODULO) MAKEEQUAL varvalue ENDL;
@@ -213,6 +213,7 @@ GT:         '>';
 LT:         '<';
 GTE:        '>=';
 LTE:        '<=';
+
 
 AND: '&&';
 OR: '||';

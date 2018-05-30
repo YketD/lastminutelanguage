@@ -1,4 +1,4 @@
-// Generated from D:/School Projects/lastminutelanguage\LastMinute.g4 by ANTLR 4.6
+// Generated from D:/School exercises/lmlanguage/lastminutelanguage\LastMinute.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -16,12 +16,38 @@ public interface LastMinuteVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(LastMinuteParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link LastMinuteParser#comment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComment(LastMinuteParser.CommentContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IncrementVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TransformVariable}
+	 * labeled alternative in {@link LastMinuteParser#varcalc}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransformVariable(LastMinuteParser.TransformVariableContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code SetVariable}
 	 * labeled alternative in {@link LastMinuteParser#vardecl}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSetVariable(LastMinuteParser.SetVariableContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link LastMinuteParser#vartrans}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVartrans(LastMinuteParser.VartransContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link LastMinuteParser#varvalue}.
 	 * @param ctx the parse tree
