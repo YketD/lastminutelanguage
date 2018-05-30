@@ -1,6 +1,5 @@
-import nl.saxion.maryke.lastmin.LastMinuteLexer;
-import nl.saxion.maryke.lastmin.LastMinuteParser;
-import org.antlr.v4.runtime.ANTLRFileStream;
+
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.IOException;
@@ -16,14 +15,16 @@ public class Main
 
         try
         {
-            lexer = new LastMinuteLexer(new ANTLRFileStream("MyApp.lm"));
+            lexer = new LastMinuteLexer(CharStreams.fromFileName("MyApp.lm"));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
             LastMinuteParser parser = new LastMinuteParser(tokens);
             LastMinuteParser.StatementContext programTree = parser.statement();
 
             TypeChecker checker = new TypeChecker();
+//            System.out.println(checker.visit(programTree));
             Types value = checker.visit(programTree);
+
         }
         catch (IOException e)
         {

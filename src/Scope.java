@@ -13,7 +13,7 @@ public class Scope {
         symbols = new HashMap<>();
     }
 
-    Symbol declareVariable(String varName, DataType type){
+    Symbol declareVariable(String varName, Type type){
         return symbols.put(varName, new Symbol(varName, type));
     }
     Symbol declareMethod(String methodName, MethodType type){

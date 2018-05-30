@@ -1,5 +1,4 @@
-import nl.saxion.maryke.lastmin.LastMinuteBaseVisitor;
-import nl.saxion.maryke.lastmin.LastMinuteParser;
+
 
 import java.util.ArrayList;
 
@@ -10,9 +9,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
     Scope globalScope;
     Scope currentScope;
 
+
+
     @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
+
         String funcName = "";
         ArrayList<String> params = new ArrayList<>();
 
@@ -61,17 +63,30 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
     @Override
     public Types visitFunccall(LastMinuteParser.FunccallContext ctx)
     {
-        /*
-        if (funcName.equals("print"))
+        String funcname = ctx.identifier().TEXT().toString();
+        System.out.println(ctx.identifier().getText());
+        if (funcname.equals("print"))
         {
-            if (params.size() < 1) params.add("");
-            System.out.println(String.format(params.get(0), params.toArray()));
+            System.out.println("function print called");
+//            if (params.size() < 1) params.add("");
+//            System.out.println(String.format(params.get(0), params.toArray()));
         }
-         */
-
         System.out.println("funccall");
 
         return super.visitFunccall(ctx);
+    }
+
+    @Override
+    public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx){
+        String varname = ctx.identifier().getText();
+        if (ctx.varvalue().varvalarray() != null)
+            currentScope.declareVariable(varname, new Type(Types.ARRAY));
+        System.out.println();
+//        switch (ctx.varvalue().identifier().getText()){
+
+//        }
+//        Symbol var = new Symbol(ctx.identifier().getText(), ctx.)
+    return super.visitSetVariable(ctx);
     }
 
     @Override
@@ -81,11 +96,5 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
         return super.visitStatement(ctx);
     }
 
-    @Override
-    public Types visitCondition(LastMinuteParser.ConditionContext ctx) {
-        //System.out.println(ctx.getChildCount());
-        //System.out.println(ctx.getChild(0).getText());
 
-        return super.visitCondition(ctx);
-    }
 }
