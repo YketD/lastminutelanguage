@@ -23,9 +23,9 @@ statement
 
     // The variable declaration
     vardecl
-    :       identifier MAKEEQUAL varvalue ENDL   #SetVariable;
-    |       identifier INCREMENT ENDL
-    |       vartrans;
+    :       identifier MAKEEQUAL varvalue ENDL      #SetVariable
+    |       identifier INCREMENT ENDL               #IncrementVariable
+    |       vartrans                                #TransformVariable;
 
     vartrans
     :       identifier (PLUS|MINUS|TIMES|DIVIDE|MODULO) MAKEEQUAL varvalue ENDL;
@@ -170,7 +170,10 @@ funcdecl
 
 identifier
 :     TEXT
+|     TEXT ARRAYINDEX
 ;
+
+
 
 //Calculations
 calculation
@@ -239,6 +242,8 @@ OPENPAR:        '(';
 CLOSEPAR:       ')';
 OPENBRACES:     '{';
 CLOSEBRACES:    '}';
+OPENBRACKET:    '[';
+CLOSEBRACKET:   ']';
 
 PLUS:       '+';
 MINUS:      '-';
@@ -256,6 +261,8 @@ COMMENT2: '//';
 COMMENT3: '##';
 MULTCOMMENTOPEN: '/*';
 MULTCOMMENTCLOSE: '*/';
+
+ARRAYINDEX: OPENBRACKET INT CLOSEBRACKET;
 
 INCVAR: '++';
 DECVAR: '--';
