@@ -3,13 +3,4 @@
  */
 public abstract class Type {
     Types type;
-
-
-    public Type(Types type) {
-        this.type = type;
-    }
-
-    public Types getType() {
-        return type;
-    }
 }

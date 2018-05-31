@@ -3,10 +3,10 @@
  */
 public class Symbol {
     private String name;
-    private Type type;
+    private Types type;
 
 
-    public Symbol(String name, Type type) {
+    public Symbol(String name, Types type) {
         this.name = name;
         this.type = type;
     }

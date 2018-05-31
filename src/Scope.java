@@ -13,10 +13,11 @@ public class Scope {
         symbols = new HashMap<>();
     }
 
-    Symbol declareVariable(String varName, Type type){
+    Symbol declareVariable(String varName, Types type){
+        System.out.println("variable name: " + varName + " var type: " + type.toString());
         return symbols.put(varName, new Symbol(varName, type));
     }
-    Symbol declareMethod(String methodName, MethodType type){
+    Symbol declareMethod(String methodName, Types type){
         return symbols.put(methodName, new Symbol(methodName, type));
     }
     Symbol lookupVariable(String varname){
