@@ -1,33 +1,46 @@
+package Model;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by yketd on 21-3-2017.
  */
-public class Scope {
+public class Scope
+{
     private Scope parentScope;
+    private String name;
     private Map<String, Symbol> symbols;
 
-    public Scope(Scope parentScope) {
+    public Scope(Scope parentScope, String scopeName)
+    {
         this.parentScope = parentScope;
+        this.name = scopeName;
         symbols = new HashMap<>();
     }
 
-    Symbol declareVariable(String varName, Types type){
+    public Symbol declareVariable(String varName, DataType type)
+    {
         return symbols.put(varName, new Symbol(varName, type));
     }
-    Symbol declareMethod(String methodName, Types type){
+
+    public Symbol declareMethod(String methodName, DataType type)
+    {
         return symbols.put(methodName, new Symbol(methodName, type));
     }
-    Symbol lookupVariable(String varname){
-        if (symbols.containsKey(varname))
-            return symbols.get(varname);
+
+    public Symbol lookupVariable(String varName)
+    {
+        if (symbols.containsKey(varName))
+            return symbols.get(varName);
         else if (parentScope != null)
-            return parentScope.lookupVariable(varname);
+            return parentScope.lookupVariable(varName);
         else
             return null;
     }
-    Symbol lookupMethod(String methodName){
+
+    public Symbol lookupMethod(String methodName)
+    {
         if (symbols.containsKey(methodName))
             return symbols.get(methodName);
         else if (parentScope != null)
@@ -36,10 +49,13 @@ public class Scope {
             return null;
     }
 
-    Scope openScope(){
-        return new Scope(this);
+    public Scope openScope()
+    {
+        return new Scope(this, "");
     }
-    Scope closeScope(){
+
+    public Scope closeScope()
+    {
         return parentScope;
     }
 

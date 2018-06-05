@@ -33,12 +33,12 @@ statement
         //All possible variable value's
         varvalue
     :       varvalnum
-    |       varvalstring
     |       varvalchar
     |       varvalarray
     |       varvalbool
     |       identifier
     |       calculation
+    |       varvalstring
     ;
 
             //Integer
@@ -78,7 +78,7 @@ funcdecl
 :           identifier
             OPENPAR params CLOSEPAR
             OPENBRACES
-            funcbody* RETURN varvalue ENDL
+            funcbody* RETURN returnVar=varvalue ENDL
             CLOSEBRACES
             ;
 

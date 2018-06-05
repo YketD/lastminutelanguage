@@ -1,12 +1,15 @@
+package Model;
+
 /**
  * Created by yketd on 21-3-2017.
  */
-public class Symbol {
+public class Symbol
+{
     private String name;
-    private Types type;
+    private DataType type;
 
-
-    public Symbol(String name, Types type) {
+    public Symbol(String name, DataType type)
+    {
         this.name = name;
         this.type = type;
     }

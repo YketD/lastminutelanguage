@@ -1,4 +1,4 @@
-
+import Model.Types;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -22,9 +22,7 @@ public class Main
             LastMinuteParser.StatementContext programTree = parser.statement();
 
             TypeChecker checker = new TypeChecker();
-//            System.out.println(checker.visit(programTree));
             Types value = checker.visit(programTree);
-
         }
         catch (IOException e)
         {
