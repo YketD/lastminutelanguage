@@ -57,16 +57,33 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx)
-    {
+    public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
         //getting the name of the variable
         String varname = ctx.identifier().getText();
         //DataType type = new DataType(ctx.varvalue());
             //TODO: Add error handling for invalid type
-        //if (type != null) {
-            //scope.declareVariable(varname, type.getType());
-            //System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
-        //}
+        DataType type = new DataType(fromcontext(ctx.varvalue()));
+        //TODO: Add error handling for invalid type
+        if (type.getType() != null) {
+            scope.declareVariable(varname, type);
+            System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
+        }
         return super.visitSetVariable(ctx);
+    }
+
+    public Types fromcontext(LastMinuteParser.VarvalueContext ctx){
+        Types type;
+        if (ctx.varvalarray() != null)
+            type = (Types.ARRAY);
+        else if (ctx.varvalbool() != null)
+            type = (Types.BOOL);
+        else if (ctx.varvalchar() != null)
+            type = (Types.CHAR);
+        else if (ctx.varvalnum() != null)
+            type = (Types.INT);
+        else if (ctx.varvalstring() != null)
+            type = (Types.STRING);
+        else{type  = null;}
+        return type;
     }
 }
