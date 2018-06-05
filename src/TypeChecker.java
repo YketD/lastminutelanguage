@@ -11,7 +11,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
     Scope currentScope;
 
 
-
     @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) {
 
@@ -20,6 +19,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
 
         if (ctx.getChild(0) instanceof LastMinuteParser.IdentifierContext) {
             funcName = ctx.getChild(0).getText();
+            System.out.println(ctx.getChild(0).getText());
         } else {
             throw new IllegalArgumentException();
         }
@@ -29,6 +29,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
                 String param;
                 for (int i = 0; i < ctx.getChild(2).getChildCount(); i++) {
                     param = ctx.getChild(2).getChild(i).getText();
+                    System.out.println(ctx.getChild(2).getChild(i).getText());
 
                     if (!param.equals(","))
                         params.add(param);
@@ -53,30 +54,27 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
     @Override
     public Types visitFunccall(LastMinuteParser.FunccallContext ctx) {
         String funcname = ctx.identifier().TEXT().toString();
-        System.out.println(ctx.identifier().getText());
+//        System.out.println(ctx.identifier().getText());
         if (funcname.equals("print")) {
-            System.out.println("function print called");
+//            System.out.println("function print called");
 //            if (params.size() < 1) params.add("");
 //            System.out.println(String.format(params.get(0), params.toArray()));
         }
-        System.out.println("funccall");
+//        System.out.println("funccall");
 
         return super.visitFunccall(ctx);
     }
 
     @Override
     public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
+        //getting the name of the variable
         String varname = ctx.identifier().getText();
-        if (ctx.varvalue().varvalarray() != null)
-            currentScope.declareVariable(varname, Types.ARRAY);
-        else if (ctx.varvalue().varvalbool() != null)
-            currentScope.declareVariable(varname, Types.BOOL);
-        else if (ctx.varvalue().varvalchar() != null)
-            currentScope.declareVariable(varname, Types.CHAR);
-        else if (ctx.varvalue().varvalnum() != null)
-            currentScope.declareVariable(varname, Types.INT);
-        else if (ctx.varvalue().varvalstring() != null)
-            currentScope.declareVariable(varname, Types.STRING);
+        DataType type = new DataType(ctx.varvalue());
+            //TODO: Add error handling for invalid type
+        if (type != null) {
+            currentScope.declareVariable(varname, type.getType());
+            System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
+        }
         return super.visitSetVariable(ctx);
     }
 
@@ -87,6 +85,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types> {
         currentScope = globalScope;
         return super.visitStatement(ctx);
     }
+
+
 
 
 }

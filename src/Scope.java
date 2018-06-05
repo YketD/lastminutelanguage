@@ -14,7 +14,6 @@ public class Scope {
     }
 
     Symbol declareVariable(String varName, Types type){
-        System.out.println("variable name: " + varName + " var type: " + type.toString());
         return symbols.put(varName, new Symbol(varName, type));
     }
     Symbol declareMethod(String methodName, Types type){
