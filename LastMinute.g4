@@ -32,13 +32,19 @@ statement
 
         //All possible variable value's
         varvalue
-    :       varvalnum
+    :       varvalfloat
+    |       varvalnum
     |       varvalchar
     |       varvalarray
     |       varvalbool
     |       identifier
     |       calculation
     |       varvalstring
+    ;
+
+            //Float
+            varvalfloat
+    :   MINUS? INT DOT INT
     ;
 
             //Integer
@@ -196,7 +202,7 @@ calculation
     ;
 
     value
-    :   varvalnum
+    :   (varvalfloat | varvalnum)
     |   identifier
     |   OPENPAR addition CLOSEPAR
     ;
@@ -235,7 +241,7 @@ COMMA:      ',';
 QUOTE:      '"';
 SQUOTE:     '\'';
 
-
+DOT: '.';
 ENDL:       ';';
 MAKEEQUAL:  ':';
 
