@@ -1,8 +1,6 @@
 import Model.*;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import java.util.LinkedHashMap;
-
 /**
  * Created by yketd on 21-3-2017.
  */
@@ -58,6 +56,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 }
             }
         }
+
+        //scope.declareFunction(func, returnType);
+        funcTree.put(ctx, func);
 
         return super.visitFuncdecl(ctx);
     }

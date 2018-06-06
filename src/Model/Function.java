@@ -28,4 +28,9 @@ public class Function
     {
         return params.contains(param);
     }
+
+    public List<String> getParams()
+    {
+        return params;
+    }
 }
