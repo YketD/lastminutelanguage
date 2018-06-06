@@ -2,7 +2,6 @@ functionOne() {
   print("hello world");
   print("%d %.2f %s", 1, 3, "hi");
   a:1;
-  arrray : <>;
   var:"test";
   hahah: true;
   kar: 'a';
@@ -10,9 +9,26 @@ functionOne() {
 }
 
 functionTwo(paramOne) {
-  return 1;
+    1-1;
+    b:1;
+    return 1;
 }
 
-functionThree(paramOne, paramTwo) {
-  return 1;
+
+calculationTest(){
+    inta: 1;
+    intb: 2;
+    string: "abc";
+    char: 't';
+
+    //error
+    string + char;
+    string - 1;
+    a+1;
+
+    //valid
+    int + intb + inta + 1 + 2 - 5 - inta;
+    inta + 1;
+
+    return 0;
 }

@@ -92,7 +92,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 if (test.getType() == Types.INT) {
                     System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an int, thus valid");
                 } else {
-                    System.err.println("identifier is not of type int, so calculation can not be executed");
+                    System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
                 }
             }else {
                 System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
