@@ -1,7 +1,10 @@
 import Model.DataType;
 import Model.Scope;
+import Model.Symbol;
 import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+
+import java.util.LinkedHashMap;
 
 /**
  * Created by yketd on 21-3-2017.
@@ -12,6 +15,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
     private Scope scope;
 
+    private LinkedHashMap<String, Symbol> varTree;
+
     private ParseTreeProperty scopeTree, funcTree;
 
     public TypeChecker()
@@ -20,6 +25,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         scopeTree = new ParseTreeProperty();
         funcTree  = new ParseTreeProperty();
+        varTree = new LinkedHashMap<>();
     }
 
     @Override
@@ -53,7 +59,13 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
         }
 
-        return null;
+        return super.visitFuncdecl(ctx);
+    }
+
+    @Override
+    public Types visitFuncbody(LastMinuteParser.FuncbodyContext ctx){
+
+        return super.visitFuncbody(ctx);
     }
 
     @Override
@@ -67,10 +79,52 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         if (type.getType() != null) {
             scope.declareVariable(varname, type);
             System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
+            Symbol symbol = new Symbol(varname, new DataType(fromcontext(ctx.varvalue())));
+//            System.out.println(symbol.getType().toString());
+            varTree.put(varname, symbol);
         }
         return super.visitSetVariable(ctx);
     }
 
+    @Override
+    public Types visitValue(LastMinuteParser.ValueContext ctx){
+
+        if (ctx.identifier() != null){
+            //check if identifier exists & is of type int
+            Symbol test = varTree.get(ctx.identifier().getText());
+            if (test != null) {
+                if (test.getType() == Types.INT) {
+                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an int, thus valid");
+                } else {
+                    System.err.println("identifier is not of type int, so calculation can not be executed");
+                }
+            }else {
+                System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
+            }
+        }
+        return super.visitValue(ctx);
+    }
+
+    @Override
+    public Types visitAddition(LastMinuteParser.AdditionContext ctx){
+        scopeTree.put(ctx, scope);
+        if (ctx.calculation() != null){
+
+        }
+//        if (!ctx.PLUS().isEmpty()){
+//            //addition
+//            System.out.println(ctx.PLUS().size() + " additions detected");
+//        }
+//        if (!ctx.MINUS().isEmpty()){
+//            //subtraction
+//            System.out.println(ctx.MINUS().size() + " subtractions detected");
+//        }
+        return super.visitAddition(ctx);
+    }
+
+//    public Symbol getSymbolByName(String symbolname){
+//
+//    }
     public Types fromcontext(LastMinuteParser.VarvalueContext ctx){
         Types type;
         if (ctx.varvalarray() != null)

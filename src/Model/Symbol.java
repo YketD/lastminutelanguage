@@ -13,4 +13,8 @@ public class Symbol
         this.name = name;
         this.type = type;
     }
+
+    public Types getType() {
+        return type.getType();
+    }
 }

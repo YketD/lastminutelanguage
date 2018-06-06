@@ -177,10 +177,10 @@ identifier
 
 //Calculations
 calculation
-    :   addition
+    :   (addition
     |   multiplication
-    |   power
-
+    |   power )+
+        ENDL
     ;
 
     addition
@@ -196,7 +196,7 @@ calculation
     ;
 
     value
-    :   INT
+    :   varvalnum
     |   identifier
     |   OPENPAR addition CLOSEPAR
     ;
@@ -255,7 +255,7 @@ POWER:      '^';
 STRING: QUOTE   ANYCHAR  QUOTE;
 CHAR:   SQUOTE  [a-zA-Z]    SQUOTE;
 
-TEXT:       [a-zA-Z]+;
+TEXT:       [a-zA-Z0-9]+;
 COMMENT: (COMMENT2|COMMENT3) ~('\r' | '\n')* ('\r' | '\n');
 MULTCOMMENT: MULTCOMMENTOPEN ANYCHAR MULTCOMMENTCLOSE;
 COMMENT2: '//';
