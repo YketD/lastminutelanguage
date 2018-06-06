@@ -12,7 +12,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
     private Scope scope;
 
-
     private ParseTreeProperty scopeTree, funcTree;
 
     public TypeChecker()
@@ -82,8 +81,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
             Symbol symbol = new Symbol(varname, new DataType(fromContext(ctx.varvalue())));
 //            System.out.println(symbol.getType().toString());
-            varTree.put(varname, symbol);
-            scope.declareVariable(varname, new DataType(fromcontext(ctx.varvalue())));
+            scope.declareVariable(varname, new DataType(fromContext(ctx.varvalue())));
         }
         return super.visitSetVariable(ctx);
     }
@@ -124,10 +122,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitAddition(ctx);
     }
 
-//    public Symbol getSymbolByName(String symbolname){
-//
-//    }
-    public Types fromContext(LastMinuteParser.VarvalueContext ctx){
+    public Types fromContext(LastMinuteParser.VarvalueContext ctx)
+    {
         Types type;
         if (ctx.varvalarray() != null)
             type = (Types.ARRAY);
