@@ -1,6 +1,8 @@
 import Model.*;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import javax.management.openmbean.KeyAlreadyExistsException;
+
 /**
  * Created by yketd on 21-3-2017.
  */
@@ -25,42 +27,45 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     {
         scopeTree.put(ctx, scope);
 
-        // if (scope.lookFunctie(ctx.ID().getText()) == null)
-        // if function does not exist
-
         // Get function name
         String funcName = ctx.identifier().getText();
-        System.out.println("func " + funcName);
 
-        Function func = new Function(funcName, fromContext(ctx.returnVar));
-
-        // Check if has parameters
-        if (ctx.params().children != null)
+        if (scope.lookupFunction(funcName) == null)
         {
-            // Loop through parameters
-            for (int i = 0; i < ctx.params().children.size(); i++)
+            Function func = new Function(funcName, fromContext(ctx.returnVar));
+
+            // Check if has parameters
+            if (ctx.params().children != null)
             {
-                String paramName = ctx.params().children.get(i).getText();
-
-                for (int j = 0; j < ctx.params().children.size(); j++)
+                // Loop through parameters
+                for (int i = 0; i < ctx.params().children.size(); i++)
                 {
-                    if (func.hasParam(paramName))
-                        throw new IllegalArgumentException("Function " + funcName + " duplicate parameter entry " + paramName);
-                }
+                    String paramName = ctx.params().children.get(i).getText();
 
-                // Only get identifier contexts, skipping the ',' separator chars
-                if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
-                {
-                    // Found one param
-                    func.addParam(paramName);
+                    for (int j = 0; j < ctx.params().children.size(); j++)
+                    {
+                        if (func.hasParam(paramName))
+                            throw new IllegalArgumentException("Function " + funcName + " duplicate parameter entry " + paramName);
+                    }
+
+                    // Only get identifier contexts, skipping the ',' separator chars
+                    if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
+                    {
+                        // Found one param
+                        func.addParam(paramName);
+                    }
                 }
             }
+
+            scope.declareFunction(funcName, null);
+            funcTree.put(ctx, func);
+        }
+        else
+        {
+            throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
 
-        //scope.declareFunction(func, returnType);
-        funcTree.put(ctx, func);
-
-        return super.visitFuncdecl(ctx);
+        return null; //super.visitFuncdecl(ctx);
     }
 
     @Override

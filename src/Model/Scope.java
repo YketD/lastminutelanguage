@@ -10,12 +10,14 @@ public class Scope
     private Scope parentScope;
     private String name;
     private LinkedHashMap<String, Symbol> symbols;
+    private int declCount;
 
     public Scope(Scope parentScope, String scopeName)
     {
         this.parentScope = parentScope;
         this.name = scopeName;
         this.symbols = new LinkedHashMap<>();
+        this.declCount = 0;
     }
 
     public Symbol declareVariable(String varName, DataType type)
@@ -38,24 +40,14 @@ public class Scope
             return null;
     }
 
-    public Symbol lookupMethod(String methodName)
+    public Symbol lookupFunction(String methodName)
     {
         if (symbols.containsKey(methodName))
             return symbols.get(methodName);
         else if (parentScope != null)
-            return parentScope.lookupMethod(methodName);
+            return parentScope.lookupFunction(methodName);
         else
             return null;
-    }
-
-    public Scope openScope()
-    {
-        return new Scope(this, "");
-    }
-
-    public Scope closeScope()
-    {
-        return parentScope;
     }
 
     public Scope getParentScope()
