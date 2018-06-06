@@ -15,7 +15,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
     private Scope scope;
 
-    private LinkedHashMap<String, Symbol> varTree;
 
     private ParseTreeProperty scopeTree, funcTree;
 
@@ -25,7 +24,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         scopeTree = new ParseTreeProperty();
         funcTree  = new ParseTreeProperty();
-        varTree = new LinkedHashMap<>();
     }
 
     @Override
@@ -79,9 +77,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         if (type.getType() != null) {
             scope.declareVariable(varname, type);
             System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
-            Symbol symbol = new Symbol(varname, new DataType(fromcontext(ctx.varvalue())));
-//            System.out.println(symbol.getType().toString());
-            varTree.put(varname, symbol);
+            scope.declareVariable(varname, new DataType(fromcontext(ctx.varvalue())));
         }
         return super.visitSetVariable(ctx);
     }
@@ -91,7 +87,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         if (ctx.identifier() != null){
             //check if identifier exists & is of type int
-            Symbol test = varTree.get(ctx.identifier().getText());
+            Symbol test = scope.lookupVariable(ctx.identifier().getText());
             if (test != null) {
                 if (test.getType() == Types.INT) {
                     System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an int, thus valid");
