@@ -5,5 +5,5 @@ package Model;
  */
 public enum Types
 {
-    INT, CHAR, STRING, ARRAY, BOOL, FLOAT;
+    INT, CHAR, STRING, ARRAY, BOOL, FLOAT, FUNCTION, UNASSIGNED
 }

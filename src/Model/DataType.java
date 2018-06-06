@@ -3,7 +3,7 @@ package Model;
 /**
  * Created by yketd on 21-3-2017.
  */
-public class DataType extends Type
+public class DataType
 {
     private Types dataType;
 
@@ -11,8 +11,6 @@ public class DataType extends Type
     {
         this.dataType = dataType;
     }
-
-
 
     public Types getType()
     {

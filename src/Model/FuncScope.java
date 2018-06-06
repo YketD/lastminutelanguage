@@ -9,9 +9,9 @@ public class FuncScope extends Scope
         super(parentScope, scopeName);
         this.function = function;
 
-        for (String s : function.getParams())
+        for (Symbol s : function.getParams())
         {
-            //addVariable(s);
+            declareVariable(s);
             //assignPosition(s);
         }
     }

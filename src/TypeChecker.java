@@ -52,12 +52,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                     if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
                     {
                         // Found one param
-                        func.addParam(paramName);
+                        func.addParam(new Symbol(paramName, Types.UNASSIGNED));
                     }
                 }
             }
 
-            scope.declareFunction(funcName, null);
+            scope.declareFunction(func);
             funcTree.put(ctx, func);
         }
         else
@@ -77,17 +77,17 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     @Override
     public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
         //getting the name of the variable
-        String varname = ctx.identifier().getText();
+        String varName = ctx.identifier().getText();
         //DataType type = new DataType(ctx.varvalue());
             //TODO: Add error handling for invalid type
         DataType type = new DataType(fromContext(ctx.varvalue()));
         //TODO: Add error handling for invalid type
         if (type.getType() != null) {
-            scope.declareVariable(varname, type);
-            System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
-            Symbol symbol = new Symbol(varname, new DataType(fromContext(ctx.varvalue())));
+            scope.declareVariable(new Symbol(varName, type.getType()));
+            System.out.println("[Name : Type] - [" + varName + " : " + type.getType().toString() + "]");
+            Symbol symbol = new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType());
 //            System.out.println(symbol.getType().toString());
-            scope.declareVariable(varname, new DataType(fromContext(ctx.varvalue())));
+            scope.declareVariable(new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType()));
         }
         return super.visitSetVariable(ctx);
     }

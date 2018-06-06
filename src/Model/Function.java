@@ -9,7 +9,7 @@ import java.util.List;
 public class Function
 {
     private Types returnType;
-    private List<String> params;
+    private List<Symbol> params;
     private String name;
 
     public Function(String name, Types returnType)
@@ -19,7 +19,7 @@ public class Function
         this.params = new ArrayList<>();
     }
 
-    public boolean addParam(String param)
+    public boolean addParam(Symbol param)
     {
         return params.add(param);
     }
@@ -29,8 +29,13 @@ public class Function
         return params.contains(param);
     }
 
-    public List<String> getParams()
+    public List<Symbol> getParams()
     {
         return params;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 }

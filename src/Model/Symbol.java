@@ -6,15 +6,20 @@ package Model;
 public class Symbol
 {
     private String name;
-    private DataType type;
+    private Types type;
 
-    public Symbol(String name, DataType type)
+    public Symbol(String name, Types type)
     {
         this.name = name;
         this.type = type;
     }
 
     public Types getType() {
-        return type.getType();
+        return type;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 }
