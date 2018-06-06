@@ -1,7 +1,4 @@
-import Model.DataType;
-import Model.Scope;
-import Model.Symbol;
-import Model.Types;
+import Model.*;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.util.LinkedHashMap;
@@ -38,7 +35,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         String funcName = ctx.identifier().getText();
         System.out.println("func " + funcName);
 
-        //Function func = new Function(funcName, DataType.fromSymbol(ctx.returnVar));
+        Function func = new Function(funcName, fromContext(ctx.returnVar));
 
         // Check if has parameters
         if (ctx.params().children != null)
@@ -46,14 +43,20 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             // Loop through parameters
             for (int i = 0; i < ctx.params().children.size(); i++)
             {
+                String paramName = ctx.params().children.get(i).getText();
+
+                for (int j = 0; j < ctx.params().children.size(); j++)
+                {
+                    if (func.hasParam(paramName))
+                        throw new IllegalArgumentException("Function " + funcName + " duplicate parameter entry " + paramName);
+                }
+
                 // Only get identifier contexts, skipping the ',' separator chars
                 if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
                 {
                     // Found one param
-                    System.out.println("param " + i + " " + ctx.params().children.get(i).getText());
+                    func.addParam(paramName);
                 }
-
-                //func.addParam(param);
             }
         }
 
@@ -72,11 +75,14 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         String varname = ctx.identifier().getText();
         //DataType type = new DataType(ctx.varvalue());
             //TODO: Add error handling for invalid type
-        DataType type = new DataType(fromcontext(ctx.varvalue()));
+        DataType type = new DataType(fromContext(ctx.varvalue()));
         //TODO: Add error handling for invalid type
         if (type.getType() != null) {
             scope.declareVariable(varname, type);
             System.out.println("[Name : Type] - [" + varname + " : " + type.getType().toString() + "]");
+            Symbol symbol = new Symbol(varname, new DataType(fromContext(ctx.varvalue())));
+//            System.out.println(symbol.getType().toString());
+            varTree.put(varname, symbol);
             scope.declareVariable(varname, new DataType(fromcontext(ctx.varvalue())));
         }
         return super.visitSetVariable(ctx);
@@ -121,7 +127,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 //    public Symbol getSymbolByName(String symbolname){
 //
 //    }
-    public Types fromcontext(LastMinuteParser.VarvalueContext ctx){
+    public Types fromContext(LastMinuteParser.VarvalueContext ctx){
         Types type;
         if (ctx.varvalarray() != null)
             type = (Types.ARRAY);
