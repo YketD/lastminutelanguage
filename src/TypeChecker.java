@@ -89,8 +89,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             //check if identifier exists & is of type int
             Symbol test = scope.lookupVariable(ctx.identifier().getText());
             if (test != null) {
-                if (test.getType() == Types.INT) {
-                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an int, thus valid");
+                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
+                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
                 } else {
                     System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
                 }
