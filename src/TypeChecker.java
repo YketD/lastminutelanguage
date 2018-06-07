@@ -2,37 +2,56 @@ import Model.*;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
+import java.util.LinkedHashMap;
 
 /**
  * Created by yketd on 21-3-2017.
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
-    private int FUNC_COUNTER = 1;
 
-    private Scope scope;
+    private String globalScopeKey = "global";
+    private int FUNC_COUNTER = 1;
+    // global scope init
+    private Scope scope= new Scope(null, globalScopeKey);
+
+    private LinkedHashMap<String, Scope> scopemap= new LinkedHashMap<>();
+
 
     private ParseTreeProperty scopeTree, funcTree;
 
+    private Scope currentScope;
+
+
+
     public TypeChecker()
     {
-        scope = new Scope(null, "func_" + FUNC_COUNTER++);
+        //global scope
 
-        scopeTree = new ParseTreeProperty();
+
+        scopemap.put(globalScopeKey, scope);
+        currentScope = scope;
+        System.out.println("global scope init");
         funcTree  = new ParseTreeProperty();
+        scopemap.put(globalScopeKey, scope);
     }
 
     @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
-        scopeTree.put(ctx, scope);
+
+        currentScope = new Scope(scopemap.get("global"), ctx.identifier().getText());
+        System.out.println("initializing scope: " + ctx.identifier().getText());
+        scope = currentScope;
+        scopemap.put(currentScope.getName(), currentScope);
+
 
         // Get function name
         String funcName = ctx.identifier().getText();
 
         if (scope.lookupFunction(funcName) == null)
         {
-            Function func = new Function(funcName, fromContext(ctx.returnVar));
+            Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
 
             // Check if has parameters
             if (ctx.params().children != null)
@@ -59,19 +78,33 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
             scope.declareFunction(func);
             funcTree.put(ctx, func);
+
         }
         else
         {
             throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
 
-        return null; //super.visitFuncdecl(ctx);
+        return super.visitFuncdecl(ctx);
     }
+
+//    @Override
+//    public Types visitReturn
+
+
 
     @Override
     public Types visitFuncbody(LastMinuteParser.FuncbodyContext ctx){
 
+//        currentScope = scopemap.get(globalScopeKey);
         return super.visitFuncbody(ctx);
+    }
+
+    @Override
+    public Types visitFuncreturn(LastMinuteParser.FuncreturnContext ctx){
+
+        currentScope = scopemap.get(globalScopeKey);
+        return super.visitFuncreturn(ctx);
     }
 
     @Override
@@ -89,6 +122,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 //            System.out.println(symbol.getType().toString());
             scope.declareVariable(new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType()));
         }
+        System.out.println("adding variable to: " + currentScope.getName() + "");
         return super.visitSetVariable(ctx);
     }
 

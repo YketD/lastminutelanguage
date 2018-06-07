@@ -40,4 +40,7 @@ public class Scope
         return functions.getOrDefault(methodName, null);
     }
 
+    public String getName(){
+        return name;
+    }
 }
