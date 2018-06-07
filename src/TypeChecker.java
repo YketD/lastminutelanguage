@@ -11,12 +11,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
 
     private String globalScopeKey = "global";
-    private int FUNC_COUNTER = 1;
+//    private int FUNC_COUNTER = 1;
     // global scope init
     private Scope scope= new Scope(null, globalScopeKey);
 
     private LinkedHashMap<String, Scope> scopemap= new LinkedHashMap<>();
-
+    private LinkedHashMap<String, Function> funcmap= new LinkedHashMap<>();
 
     private ParseTreeProperty scopeTree, funcTree;
 
@@ -77,6 +77,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
 
             scope.declareFunction(func);
+            funcmap.put(func.getName(), func);
             funcTree.put(ctx, func);
 
         }
@@ -84,7 +85,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
             throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
-
         return super.visitFuncdecl(ctx);
     }
 
@@ -98,6 +98,20 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
 //        currentScope = scopemap.get(globalScopeKey);
         return super.visitFuncbody(ctx);
+    }
+
+    @Override
+    public Types visitFunccall(LastMinuteParser.FunccallContext ctx){
+        Function func = funcmap.get(ctx.identifier().getText());
+        if (func == null) {
+            System.err.println("calling function " + ctx.identifier().getText()+ " that does not exist, exiting..");
+            return null;
+        } else if (ctx.extendedparams().varvalue().size() != func.getParams().size()){
+            System.err.println("calling function with the wrong amount of params");
+            return null;
+            }
+        System.out.println("succesfully called function: " + func.getName());
+        return super.visitFunccall(ctx);
     }
 
     @Override
