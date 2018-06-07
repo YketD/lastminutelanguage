@@ -64,13 +64,13 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
 
             scope.declareFunction(func);
+            funcmap.put(func.getName(), func);
             funcTree.put(ctx, func);
         }
         else
         {
             throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
-
         return super.visitFuncdecl(ctx);
     }
 
@@ -81,6 +81,20 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitFuncbody(ctx);
     }
 
+
+    @Override
+    public Types visitFunccall(LastMinuteParser.FunccallContext ctx){
+        Function func = funcmap.get(ctx.identifier().getText());
+        if (func == null) {
+            System.err.println("calling function " + ctx.identifier().getText()+ " that does not exist, exiting..");
+            return null;
+        } else if (ctx.extendedparams().varvalue().size() != func.getParams().size()){
+            System.err.println("calling function with the wrong amount of params");
+            return null;
+            }
+        System.out.println("succesfully called function: " + func.getName());
+        return super.visitFunccall(ctx);
+    }
 
     @Override
     public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx)
