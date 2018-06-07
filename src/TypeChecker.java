@@ -9,49 +9,36 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
-
     private String globalScopeKey = "global";
     private int FUNC_COUNTER = 1;
-    // global scope init
     private Scope scope= new Scope(null, globalScopeKey);
-
     private LinkedHashMap<String, Scope> scopemap= new LinkedHashMap<>();
-
-
     private ParseTreeProperty scopeTree, funcTree;
-
     private Scope currentScope;
-
-
 
     public TypeChecker()
     {
-        //global scope
-
-
         scopemap.put(globalScopeKey, scope);
         currentScope = scope;
-        System.out.println("global scope init");
-        funcTree  = new ParseTreeProperty();
-        scopemap.put(globalScopeKey, scope);
+
+        scopeTree = new ParseTreeProperty();
+        funcTree = new ParseTreeProperty();
     }
 
     @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
-
-        currentScope = new Scope(scopemap.get("global"), ctx.identifier().getText());
-        System.out.println("initializing scope: " + ctx.identifier().getText());
-        scope = currentScope;
-        scopemap.put(currentScope.getName(), currentScope);
-
-
         // Get function name
         String funcName = ctx.identifier().getText();
 
         if (scope.lookupFunction(funcName) == null)
         {
-            Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
+            System.out.println("initializing scope: " + ctx.identifier().getText());
+            currentScope = new Scope(scopemap.get(globalScopeKey), ctx.identifier().getText());
+            scope = currentScope;
+            scopemap.put(currentScope.getName(), currentScope);
+
+            Function func = new Function(funcName, fromContext(ctx.returnVar));
 
             // Check if has parameters
             if (ctx.params().children != null)
@@ -78,7 +65,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
             scope.declareFunction(func);
             funcTree.put(ctx, func);
-
         }
         else
         {
@@ -88,38 +74,28 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitFuncdecl(ctx);
     }
 
-//    @Override
-//    public Types visitReturn
-
-
-
     @Override
-    public Types visitFuncbody(LastMinuteParser.FuncbodyContext ctx){
+    public Types visitFuncbody(LastMinuteParser.FuncbodyContext ctx)
+    {
 
-//        currentScope = scopemap.get(globalScopeKey);
         return super.visitFuncbody(ctx);
     }
 
-    @Override
-    public Types visitFuncreturn(LastMinuteParser.FuncreturnContext ctx){
-
-        currentScope = scopemap.get(globalScopeKey);
-        return super.visitFuncreturn(ctx);
-    }
 
     @Override
-    public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
+    public Types visitSetVariable(LastMinuteParser.SetVariableContext ctx)
+    {
         //getting the name of the variable
         String varName = ctx.identifier().getText();
         //DataType type = new DataType(ctx.varvalue());
-            //TODO: Add error handling for invalid type
+        //TODO: Add error handling for invalid type
         DataType type = new DataType(fromContext(ctx.varvalue()));
         //TODO: Add error handling for invalid type
-        if (type.getType() != null) {
+        if (type.getType() != null)
+        {
             scope.declareVariable(new Symbol(varName, type.getType()));
             System.out.println("[Name : Type] - [" + varName + " : " + type.getType().toString() + "]");
             Symbol symbol = new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType());
-//            System.out.println(symbol.getType().toString());
             scope.declareVariable(new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType()));
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
@@ -127,8 +103,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitValue(LastMinuteParser.ValueContext ctx){
-
+    public Types visitValue(LastMinuteParser.ValueContext ctx)
+    {
         if (ctx.identifier() != null){
             //check if identifier exists & is of type int
             Symbol test = scope.lookupVariable(ctx.identifier().getText());
@@ -146,7 +122,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitAddition(LastMinuteParser.AdditionContext ctx){
+    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
+    {
         scopeTree.put(ctx, scope);
         if (ctx.calculation() != null){
 
