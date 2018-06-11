@@ -14,6 +14,8 @@ public class Symbol
         this.type = type;
     }
 
+    public void setType(Types type) { this.type = type; }
+
     public Types getType() {
         return type;
     }

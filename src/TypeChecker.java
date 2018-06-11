@@ -11,9 +11,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
     private String globalScopeKey = "global";
     private int FUNC_COUNTER = 1;
-    private Scope scope= new Scope(null, globalScopeKey);
-    private LinkedHashMap<String, Scope> scopemap= new LinkedHashMap<>();
-    private LinkedHashMap<String, Function> funcmap= new LinkedHashMap<>();
+    private Scope scope = new Scope(null, globalScopeKey);
+    private LinkedHashMap<String, Scope> scopemap = new LinkedHashMap<>();
+    private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope currentScope;
 
@@ -82,9 +82,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitFuncbody(ctx);
     }
 
-
     @Override
-    public Types visitFunccall(LastMinuteParser.FunccallContext ctx){
+    public Types visitFunccall(LastMinuteParser.FunccallContext ctx)
+    {
         Function func = funcmap.get(ctx.identifier().getText());
         if (func == null) {
             System.err.println("calling function " + ctx.identifier().getText()+ " that does not exist, exiting..");
@@ -102,40 +102,46 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     {
         //getting the name of the variable
         String varName = ctx.identifier().getText();
-        //DataType type = new DataType(ctx.varvalue());
-        //TODO: Add error handling for invalid type
-        DataType type = new DataType(fromContext(ctx.varvalue()));
-        //TODO: Add error handling for invalid type
-        if (type.getType() != null)
+        Types type = fromContext(ctx.varvalue());
+
+        if (type != null)
         {
-            scope.declareVariable(new Symbol(varName, type.getType()));
-            System.out.println("[Name : Type] - [" + varName + " : " + type.getType().toString() + "]");
-            Symbol symbol = new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType());
-            scope.declareVariable(new Symbol(varName, new DataType(fromContext(ctx.varvalue())).getType()));
+            Symbol existingVar = scope.lookupVariable(varName);
+            if (existingVar != null)
+            {
+                existingVar.setType(type);
+            }
+            else
+            {
+                scope.declareVariable(new Symbol(varName, type));
+                System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
+                Symbol symbol = new Symbol(varName, fromContext(ctx.varvalue()));
+                scope.declareVariable(new Symbol(varName, fromContext(ctx.varvalue())));
+            }
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
         return super.visitSetVariable(ctx);
     }
 
 
-    @Override
-    public Types visitValue(LastMinuteParser.ValueContext ctx)
-    {
-        if (ctx.identifier() != null){
-            //check if identifier exists & is of type int
-            Symbol test = scope.lookupVariable(ctx.identifier().getText());
-            if (test != null) {
-                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
-                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
-                } else {
-                    System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
-                }
-            }else {
-                System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
-            }
-        }
-        return super.visitValue(ctx);
-    }
+//    @Override
+//    public Types visitValue(LastMinuteParser.ValueContext ctx)
+//    {
+//        if (ctx.identifier() != null){
+//            //check if identifier exists & is of type int
+//            Symbol test = scope.lookupVariable(ctx.identifier().getText());
+//            if (test != null) {
+//                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
+//                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
+//                } else {
+//                    System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
+//                }
+//            }else {
+//                System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
+//            }
+//        }
+//        return super.visitValue(ctx);
+//    }
 
 //    @Override
 //    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
