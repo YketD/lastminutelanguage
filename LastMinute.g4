@@ -114,7 +114,6 @@ funcdecl
     |   funccall
     |   loop
     |   if_else
-    |   calculation
     |   comment
     ;
 
@@ -187,31 +186,15 @@ identifier
 
 
 //Calculations
-calculation
-    :   (addition
-    |   multiplication
-    |   power )+
-        ENDL
-    ;
+calcVal: (varvalfloat | varvalnum | identifier);
 
-    addition
-    :   value  ((PLUS | MINUS)  (value | calculation))+
-    ;
+calculation:
+    (OPENPAR calculation CLOSEPAR) calcMore*
+    |
+    calcVal calcMore+
+;
 
-    multiplication
-    :   value  ((TIMES | DIVIDE) (value | calculation))+
-    ;
-
-    power
-    :   value  ((MODULO | POWER) (value | calculation))+
-    ;
-
-    value
-    :   (varvalfloat | varvalnum)
-    |   identifier
-    |   OPENPAR addition CLOSEPAR
-    ;
-
+calcMore: (PLUS | MINUS | TIMES | DIVIDE | MODULO | POWER) (calculation | calcVal);
 
 /*
 LEXER RULES
