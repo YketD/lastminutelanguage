@@ -140,6 +140,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitSetVariable(ctx);
     }
 
+
     @Override
     public Types visitValue(LastMinuteParser.ValueContext ctx){
 
@@ -159,22 +160,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitValue(ctx);
     }
 
-    @Override
-    public Types visitAddition(LastMinuteParser.AdditionContext ctx){
-        scopeTree.put(ctx, scope);
-        if (ctx.calculation() != null){
-
-        }
-//        if (!ctx.PLUS().isEmpty()){
-//            //addition
-//            System.out.println(ctx.PLUS().size() + " additions detected");
-//        }
-//        if (!ctx.MINUS().isEmpty()){
-//            //subtraction
-//            System.out.println(ctx.MINUS().size() + " subtractions detected");
-//        }
-        return super.visitAddition(ctx);
-    }
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx)
     {
