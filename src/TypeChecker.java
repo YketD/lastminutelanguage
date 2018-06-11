@@ -143,6 +143,25 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 //        return super.visitValue(ctx);
 //    }
 
+    @Override
+    public Types visitCalcVal(LastMinuteParser.CalcValContext ctx)
+    {
+        if (ctx.identifier() != null){
+            //check if identifier exists & is of type int
+            Symbol test = scope.lookupVariable(ctx.identifier().getText());
+            if (test != null) {
+                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
+                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
+                } else {
+                    System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
+                }
+            }else {
+                System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
+            }
+        }
+        return super.visitCalcVal(ctx);
+    }
+
 //    @Override
 //    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
 //    {
@@ -165,4 +184,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         else{type  = null;}
         return type;
     }
+
+
 }
