@@ -11,9 +11,14 @@ functionOne() {
 }
 
 functionTwo(paramOne) {
+
+    functionOne();
   return 1;
 }
 
 functionThree(paramOne, paramTwo) {
+    functionTwo(2);
+    functionTwo();
+    function();
   return 1;
 }

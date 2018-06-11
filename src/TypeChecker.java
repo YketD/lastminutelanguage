@@ -13,6 +13,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     private int FUNC_COUNTER = 1;
     private Scope scope= new Scope(null, globalScopeKey);
     private LinkedHashMap<String, Scope> scopemap= new LinkedHashMap<>();
+    private LinkedHashMap<String, Function> funcmap= new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope currentScope;
 
@@ -38,7 +39,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             scope = currentScope;
             scopemap.put(currentScope.getName(), currentScope);
 
-            Function func = new Function(funcName, fromContext(ctx.returnVar));
+            Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
 
             // Check if has parameters
             if (ctx.params().children != null)
@@ -136,11 +137,11 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitValue(ctx);
     }
 
-    @Override
-    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
-    {
-        scopeTree.put(ctx, scope);
-        if (ctx.calculation() != null){
+//    @Override
+//    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
+//    {
+//        scopeTree.put(ctx, scope);
+//        if (ctx.calculation() != null){
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx)
     {
