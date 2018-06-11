@@ -118,8 +118,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
 
+
     @Override
-    public Types visitValue(LastMinuteParser.ValueContext ctx)
+    public Types visitCalcVal(LastMinuteParser.CalcValContext ctx)
     {
         if (ctx.identifier() != null){
             //check if identifier exists & is of type int
@@ -134,7 +135,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
             }
         }
-        return super.visitValue(ctx);
+        return super.visitCalcVal(ctx);
     }
 
 //    @Override
@@ -159,4 +160,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         else{type  = null;}
         return type;
     }
+
+
 }
