@@ -69,19 +69,38 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
             throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
-        return super.visitFuncdecl(ctx);
+
+        for(LastMinuteParser.FuncbodyContext body : ctx.funcbody())
+            visit(body);
+
+        visit(ctx.funcreturn());
+
+        String scopeName = currentScope.getName();
+        currentScope = currentScope.getParentScope();
+        currentScope.removeChild(scopeName);
+
+        return null;
     }
 
     @Override
     public Types visitWhileloop(LastMinuteParser.WhileloopContext ctx)
     {
+        visit(ctx.conditionalbody());
+        return null;
+    }
+
+    @Override
+    public Types visitConditionalbody(LastMinuteParser.ConditionalbodyContext ctx)
+    {
+        visit(ctx.condition());
+
         String scopeName = "scope_" + scopecount++;
         Scope newScope = new Scope(scopeName, currentScope);
         currentScope.addChild(newScope);
         currentScope = newScope;
         scopeTree.put(ctx, currentScope);
 
-        visit(ctx.conditionalbody());
+        visit(ctx.body());
 
         currentScope = currentScope.getParentScope();
         currentScope.removeChild(scopeName);
@@ -92,22 +111,13 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     @Override
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
-        String scopeName = "scope_" + scopecount++;
-        Scope newScope = new Scope(scopeName, currentScope);
-        currentScope.addChild(newScope);
-        currentScope = newScope;
-        scopeTree.put(ctx, currentScope);
-
         visit(ctx.conditionalbody());
-
-        currentScope = currentScope.getParentScope();
-        currentScope.removeChild(scopeName);
 
         if (ctx.body() != null)
         {
 
-            scopeName = "scope_" + scopecount++;
-            newScope = new Scope(scopeName, currentScope);
+            String scopeName = "scope_" + scopecount++;
+            Scope newScope = new Scope(scopeName, currentScope);
             currentScope.addChild(newScope);
             currentScope = newScope;
             scopeTree.put(ctx, currentScope);
