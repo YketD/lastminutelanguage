@@ -213,7 +213,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
     @Override
     public Types visitBody(LastMinuteParser.BodyContext ctx) {
-        currentScope = currentScope.getParentScope();
+//        currentScope = currentScope.getParentScope();
         return super.visitBody(ctx);
     }
 //    @Override
