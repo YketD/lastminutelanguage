@@ -12,7 +12,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope scope, currentScope;
-
+    private int scopecount = 0;
     public TypeChecker()
     {
         scope = new Scope("global");
@@ -159,6 +159,27 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         return super.visitCalcVal(ctx);
     }
 
+    @Override
+    public Types visitForloop(LastMinuteParser.ForloopContext ctx) {
+
+
+        //check if iterator var is an int
+        if (((LastMinuteParser.SetVariableContext)ctx.vardecl()).varvalue().varvalnum() == null){
+            System.err.println("vardecl in for loop is of wrong type, expecting int");
+        }
+        scope = new Scope("forScope" + scopecount, currentScope);
+        currentScope.addChild(scope);
+        scopecount ++;
+        currentScope = scope;
+
+        return super.visitForloop(ctx);
+    }
+
+    @Override
+    public Types visitBody(LastMinuteParser.BodyContext ctx) {
+        currentScope = currentScope.getParentScope();
+        return super.visitBody(ctx);
+    }
 //    @Override
 //    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
 //    {
