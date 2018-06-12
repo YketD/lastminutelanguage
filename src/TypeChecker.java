@@ -13,7 +13,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope scope, currentScope;
-    private int scopecount = 0;
+
     public TypeChecker()
     {
         scope = new Scope("global");
