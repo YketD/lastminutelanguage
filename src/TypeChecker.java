@@ -33,7 +33,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
             System.out.println("initializing scope: " + funcName);
             Scope newScope = new Scope(funcName, currentScope);
-            currentScope.addChild(currentScope);
+            currentScope.addChild(newScope);
             currentScope = newScope;
             scopeTree.put(ctx, currentScope);
 
