@@ -1,22 +1,24 @@
 print(str) {
   return 1;
 }
+
 a:1;
 
 functionOne() {
-  print("hello world");
-  a:1;
-  ##arrray : <>;
-  var:"test";
-  hahah: true;
-  kar: 'a';
+  if (a == 1)
+  {
+     b: 1;
+     print("");
+  }
+  else
+  {
+     print("");
+  }
+
+  if (b == 1)
+  {
+    print("");
+  }
+
   return  1;
-}
-
-functionTwo(paramOne) {
-  return 1;
-}
-
-functionThree(paramOne, paramTwo) {
-  return 1;
 }

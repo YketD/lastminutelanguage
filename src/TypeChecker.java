@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
+    private int scopecount = 1;
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope scope, currentScope;
@@ -28,7 +29,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         // Get function name
         String funcName = ctx.identifier().getText();
 
-        if (scope.lookupFunction(funcName) == null)
+        if (currentScope.lookupFunction(funcName) == null)
         {
             Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
 
@@ -55,13 +56,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 }
             }
 
-            System.out.println("initializing scope: " + funcName);
             FuncScope newScope = new FuncScope(funcName, func, currentScope);
             currentScope.addChild(newScope);
             currentScope = newScope;
             scopeTree.put(ctx, currentScope);
 
-            scope.declareFunction(func);
+            currentScope.declareFunction(func);
             funcmap.put(func.getName(), func);
             funcTree.put(ctx, func);
         }
@@ -73,10 +73,46 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitFuncbody(LastMinuteParser.FuncbodyContext ctx)
+    public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
+        String scopeName = "scope_" + scopecount++;
+        Scope newScope = new Scope(scopeName, currentScope);
+        currentScope.addChild(newScope);
+        currentScope = newScope;
+        scopeTree.put(ctx, currentScope);
 
-        return super.visitFuncbody(ctx);
+        visit(ctx.conditionalbody());
+
+        currentScope = currentScope.getParentScope();
+        currentScope.removeChild(scopeName);
+
+        if (ctx.body() != null)
+        {
+
+            scopeName = "scope_" + scopecount++;
+            newScope = new Scope(scopeName, currentScope);
+            currentScope.addChild(newScope);
+            currentScope = newScope;
+            scopeTree.put(ctx, currentScope);
+
+            visit(ctx.body());
+
+            currentScope = currentScope.getParentScope();
+            currentScope.removeChild(scopeName);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Types visitIdentifier(LastMinuteParser.IdentifierContext ctx)
+    {
+        boolean lookupVar = currentScope.lookupVariable(ctx.getText()) != null;
+        boolean lookupFunc = currentScope.lookupFunction(ctx.getText()) != null;
+
+        System.out.println(ctx.getText() + " var " + lookupVar + " func " + lookupFunc);
+
+        return super.visitIdentifier(ctx);
     }
 
     @Override
@@ -103,17 +139,17 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         if (type != null)
         {
-            Symbol existingVar = scope.lookupVariable(varName);
+            Symbol existingVar = currentScope.lookupVariable(varName);
             if (existingVar != null)
             {
                 existingVar.setType(type);
             }
             else
             {
-                scope.declareVariable(new Symbol(varName, type));
+                currentScope.declareVariable(new Symbol(varName, type));
                 System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
                 Symbol symbol = new Symbol(varName, fromContext(ctx.varvalue()));
-                scope.declareVariable(new Symbol(varName, fromContext(ctx.varvalue())));
+                currentScope.declareVariable(new Symbol(varName, fromContext(ctx.varvalue())));
             }
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
@@ -126,7 +162,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 //    {
 //        if (ctx.identifier() != null){
 //            //check if identifier exists & is of type int
-//            Symbol test = scope.lookupVariable(ctx.identifier().getText());
+//            Symbol test = currentScope.lookupVariable(ctx.identifier().getText());
 //            if (test != null) {
 //                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
 //                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
@@ -145,7 +181,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     {
         if (ctx.identifier() != null){
             //check if identifier exists & is of type int
-            Symbol test = scope.lookupVariable(ctx.identifier().getText());
+            Symbol test = currentScope.lookupVariable(ctx.identifier().getText());
             if (test != null) {
                 if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
                     System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
