@@ -73,6 +73,23 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
+    public Types visitWhileloop(LastMinuteParser.WhileloopContext ctx)
+    {
+        String scopeName = "scope_" + scopecount++;
+        Scope newScope = new Scope(scopeName, currentScope);
+        currentScope.addChild(newScope);
+        currentScope = newScope;
+        scopeTree.put(ctx, currentScope);
+
+        visit(ctx.conditionalbody());
+
+        currentScope = currentScope.getParentScope();
+        currentScope.removeChild(scopeName);
+
+        return null;
+    }
+
+    @Override
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         String scopeName = "scope_" + scopecount++;
