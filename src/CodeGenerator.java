@@ -27,7 +27,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
                 + "\r\n.super java/lang/Object" +
                 "\r\n\r\n.method public <init>()V" +
                 "\r\n\taload_0" +
-                "\r\n\tinvokenonvirtual java/lang/Object/<init>()V" +
+                "\r\n\tinvokespecial java/lang/Object/<init>()V" +
                 "\r\n\treturn" +
                 "\r\n.end method\r\n");
     }
@@ -40,8 +40,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         printWriter.println("\r\n\taload 0");
         printWriter.println("\r\n\tnew " + fileName);
         printWriter.println("\tdup");
-        printWriter.println("\tinvokespecial " + fileName + "/<init>()V");
-        printWriter.println("\tinvokespecial " + fileName + "/run()V");
+        printWriter.println("\tinvokespecial  " + fileName + "/<init>()V");
+        printWriter.println("\tinvokespecial  " + fileName + "/run()V");
         printWriter.println("\r\n\treturn");
         printWriter.println(".end method");
 

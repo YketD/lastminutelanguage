@@ -9,17 +9,14 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
-    private String globalScopeKey = "global";
     private int FUNC_COUNTER = 1;
-    private Scope scope = new Scope(null, globalScopeKey);
-    private LinkedHashMap<String, Scope> scopemap = new LinkedHashMap<>();
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
-    private Scope currentScope;
+    private Scope scope, currentScope;
 
     public TypeChecker()
     {
-        scopemap.put(globalScopeKey, scope);
+        scope = new Scope("global");
         currentScope = scope;
 
         scopeTree = new ParseTreeProperty();
@@ -34,10 +31,11 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         if (scope.lookupFunction(funcName) == null)
         {
-            System.out.println("initializing scope: " + ctx.identifier().getText());
-            currentScope = new Scope(scopemap.get(globalScopeKey), ctx.identifier().getText());
-            scope = currentScope;
-            scopemap.put(currentScope.getName(), currentScope);
+            System.out.println("initializing scope: " + funcName);
+            Scope newScope = new Scope(funcName, currentScope);
+            currentScope.addChild(currentScope);
+            currentScope = newScope;
+            scopeTree.put(ctx, currentScope);
 
             Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
 
