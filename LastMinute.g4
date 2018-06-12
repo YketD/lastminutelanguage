@@ -168,7 +168,7 @@ funcdecl
         forloop
         :   FOR
             OPENPAR
-            vardecl condition ENDL calculation
+            vardecl condition ENDL varcalc
             CLOSEPAR
             body
         ;
