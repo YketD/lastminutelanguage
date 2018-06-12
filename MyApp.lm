@@ -1,28 +1,22 @@
-print("hello world");
-print("%d %.2f %s", 1, 3, "hi");
+print(str) {
+  return 1;
+}
 a:1;
 
 functionOne() {
   print("hello world");
-  print("%d %.2f %s", 1, 3, "hi");
   a:1;
   ##arrray : <>;
   var:"test";
   hahah: true;
   kar: 'a';
   return  1;
-
 }
 
 functionTwo(paramOne) {
-
-    functionOne();
   return 1;
 }
 
 functionThree(paramOne, paramTwo) {
-    functionTwo(2);
-    functionTwo();
-    function();
   return 1;
 }
