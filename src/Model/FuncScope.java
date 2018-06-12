@@ -4,11 +4,22 @@ public class FuncScope extends Scope
 {
     private Function function;
 
-    public FuncScope(Scope parentScope, String scopeName, Function function)
+    public FuncScope(String scopeName, Function function, Scope parentScope)
     {
-        super(parentScope, scopeName);
+        super(scopeName, parentScope);
         this.function = function;
+        this.declareAllVariables();
+    }
 
+    public FuncScope(String scopeName, Function function)
+    {
+        super(scopeName);
+        this.function = function;
+        this.declareAllVariables();
+    }
+
+    private void declareAllVariables()
+    {
         for (Symbol s : function.getParams())
         {
             declareVariable(s);

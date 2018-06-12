@@ -10,6 +10,7 @@ statement
         (comment|
         varcalc|
         vardecl|
+        funccall|
         funcdecl)*
     ;
 

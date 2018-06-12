@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
-    private int FUNC_COUNTER = 1;
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree;
     private Scope scope, currentScope;
@@ -31,12 +30,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         if (scope.lookupFunction(funcName) == null)
         {
-            System.out.println("initializing scope: " + funcName);
-            Scope newScope = new Scope(funcName, currentScope);
-            currentScope.addChild(newScope);
-            currentScope = newScope;
-            scopeTree.put(ctx, currentScope);
-
             Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
 
             // Check if has parameters
@@ -61,6 +54,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                     }
                 }
             }
+
+            System.out.println("initializing scope: " + funcName);
+            FuncScope newScope = new FuncScope(funcName, func, currentScope);
+            currentScope.addChild(newScope);
+            currentScope = newScope;
+            scopeTree.put(ctx, currentScope);
 
             scope.declareFunction(func);
             funcmap.put(func.getName(), func);
