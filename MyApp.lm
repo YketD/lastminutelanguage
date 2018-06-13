@@ -1,5 +1,7 @@
 globalVar: 1;
 
+print("hi hi");
+
 doAThing(withThis)
 {
   tempVar: 44;

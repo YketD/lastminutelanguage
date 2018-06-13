@@ -104,14 +104,17 @@ public class CodeGenerator extends LastMinuteBaseVisitor
             printWriter.print(param.getMnenonic());
         }
 
-        printWriter.println(")");
+        printWriter.println(";)V");
+
+        printWriter.println("\t.limit stack 100\r\n" +
+                "\t.limit locals 100");
 
         for(LastMinuteParser.FuncbodyContext body : ctx.funcbody())
             visit(body);
 
         visit(ctx.funcreturn());
 
-        printWriter.println(".end method");
+        printWriter.println("return\r\n.end method");
 
         return null;
     }
