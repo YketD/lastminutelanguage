@@ -20,7 +20,20 @@
 
 	return
 .end method
-.method public print(Ljava/lang/Object)
+	bipush 1
+	istore 0
+.method public doAThing(Ljava/lang/Object)
+	bipush 44
+	istore 2
+	ldc 765433
+	istore 3
 .end method
-.method public functionOne()
+
+.method public run()V
+	.limit stack 2
+	.limit locals 2
+
+
+	return
 .end method
+

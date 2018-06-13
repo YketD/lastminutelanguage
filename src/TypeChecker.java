@@ -205,16 +205,15 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
             else
             {
-                currentScope.declareVariable(new Symbol(varName, type));
+                Symbol symb = new Symbol(varName, type);
+                currentScope.declareVariable(symb);
+                funcTree.put(ctx, symb);
                 System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
-                Symbol symbol = new Symbol(varName, fromContext(ctx.varvalue()));
-                currentScope.declareVariable(new Symbol(varName, fromContext(ctx.varvalue())));
             }
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
         return super.visitSetVariable(ctx);
     }
-
 
 //    @Override
 //    public Types visitValue(LastMinuteParser.ValueContext ctx)
@@ -255,9 +254,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitForloop(LastMinuteParser.ForloopContext ctx) {
-
-
+    public Types visitForloop(LastMinuteParser.ForloopContext ctx)
+    {
         //check if iterator var is an int
         if (((LastMinuteParser.SetVariableContext)ctx.vardecl()).varvalue().varvalnum() == null){
             System.err.println("vardecl in for loop is of wrong type, expecting int");
@@ -276,17 +274,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         return null;
     }
-
-    @Override
-    public Types visitBody(LastMinuteParser.BodyContext ctx) {
-//        currentScope = currentScope.getParentScope();
-        return super.visitBody(ctx);
-    }
-//    @Override
-//    public Types visitAddition(LastMinuteParser.AdditionContext ctx)
-//    {
-//        scopeTree.put(ctx, scope);
-//        if (ctx.calculation() != null){
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx)
     {

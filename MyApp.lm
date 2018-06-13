@@ -1,31 +1,11 @@
-print(str) {
-  while (true) {
-    x: 1;
-  }
+globalVar: 1;
 
-  if (x == 1) { }
+doAThing(withThis)
+{
+  tempVar: 44;
+  tempVar +: globalVar;
+
+  tempVar2: 765433;
 
   return 1;
-
-}
-
-a:1;
-
-functionOne() {
-  if (a == 1)
-  {
-     b: 1;
-     print("");
-  }
-  else
-  {
-     print("");
-  }
-
-  if (b == 1)
-  {
-    print("");
-  }
-
-  return  1;
 }
