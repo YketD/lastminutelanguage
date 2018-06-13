@@ -29,6 +29,7 @@ public class Main
             // Code generation
             CodeGenerator codeGenerator = new CodeGenerator("test.lm", checker.getScopeTree(), checker.getFuncTree());
             codeGenerator.visit(programTree);
+            codeGenerator.createRunMethod();
             codeGenerator.getPrintWriter().flush();
             codeGenerator.getPrintWriter().close();
         }

@@ -13,14 +13,23 @@
 
 	aload 0
 
-	new test.lm
+	new test
 	dup
-	invokespecial  test.lm/<init>()V
-	invokespecial  test.lm/run()V
+	invokespecial  test/<init>()V
+	invokespecial  test/run()V
 
 	return
 .end method
-.method public print(Ljava/lang/Object)
+
+.method public run()V
+	.limit stack 2
+	.limit locals 2
+
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	ldc "test"
+	    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
+
+
+	return
 .end method
-.method public functionOne()
-.end method
+
