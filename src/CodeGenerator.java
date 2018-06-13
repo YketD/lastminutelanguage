@@ -1,9 +1,11 @@
 import Model.Function;
+import Model.Scope;
 import Model.Symbol;
 import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
@@ -98,45 +100,59 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         return null;
     }
 
-    private void storeVar(Types symbolType, int id)
+    private void storeVar(Types symbolType, int id, Appendable pw)
     {
-        switch (symbolType)
+        try
         {
-            case BOOL:
-                printWriter.println("\tistore " + id);
-                break;
-            case FLOAT:
-                printWriter.println("\tfstore " + id);
-                break;
-            case INT:
-                printWriter.println("\tistore " + id);
-                break;
-            case STRING:
-                printWriter.println("\tastore " + id);
-                break;
+            switch (symbolType)
+            {
+                case BOOL:
+                    pw.append("\tistore " + id + "\r\n");
+                    break;
+                case FLOAT:
+                    pw.append("\tfstore " + id + "\r\n");
+                    break;
+                case INT:
+                    pw.append("\tistore " + id + "\r\n");
+                    break;
+                case STRING:
+                    pw.append("\tastore " + id + "\r\n");
+                    break;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
-    private void loadVar(Types symbolType, int id)
+    private void loadVar(Types symbolType, int id, Appendable pw)
     {
-        switch (symbolType)
+        try
         {
-            case BOOL:
-                printWriter.println("\tiload " + id);
-                break;
-            case FLOAT:
-                printWriter.println("\tfload " + id);
-                break;
-            case INT:
-                printWriter.println("\tiload " + id);
-                break;
-            case STRING:
-                printWriter.println("\taload " + id);
-                break;
+            switch (symbolType)
+            {
+                case BOOL:
+                    pw.append("\tiload " + id + "\r\n");
+                    break;
+                case FLOAT:
+                    pw.append("\tfload " + id + "\r\n");
+                    break;
+                case INT:
+                    pw.append("\tiload " + id + "\r\n");
+                    break;
+                case STRING:
+                    pw.append("\taload " + id + "\r\n");
+                    break;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
-    private void pushVar(Symbol symbol, String rawValue)
+    private void pushVar(Symbol symbol, String rawValue, Appendable pw)
     {
         if (symbol.getType() == Types.INT)
         {
@@ -144,12 +160,19 @@ public class CodeGenerator extends LastMinuteBaseVisitor
             try { value = Integer.valueOf(rawValue); }
             catch (NumberFormatException e) {}
 
-            if (value >= 0 && value < 128) {
-                printWriter.println("\tbipush " + value);
-            } else if (value >= 128 && value < 32768) {
-                printWriter.println("\tsipush " + value);
-            } else {
-                printWriter.println("\tldc " + value);
+            try
+            {
+                if (value >= 0 && value < 128) {
+                    pw.append("\tbipush " + value + "\r\n");
+                } else if (value >= 128 && value < 32768) {
+                    pw.append("\tsipush " + value + "\r\n");
+                } else {
+                    pw.append("\tldc " + value + "\r\n");
+                }
+
+            } catch (IOException e)
+            {
+                e.printStackTrace();
             }
         }
     }
@@ -164,10 +187,13 @@ public class CodeGenerator extends LastMinuteBaseVisitor
     @Override
     public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx)
     {
+        Scope scope = (Scope) scopeTree.get(ctx);
         Symbol symbol = (Symbol) funcTree.get(ctx);
 
-        pushVar(symbol, ctx.varvalue().getText());
-        storeVar(symbol.getType(), symbol.getId());
+        Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
+
+        pushVar(symbol, ctx.varvalue().getText(), pw);
+        storeVar(symbol.getType(), symbol.getId(), pw);
 
         return super.visitSetVariable(ctx);
     }

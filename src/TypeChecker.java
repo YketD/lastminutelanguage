@@ -210,6 +210,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 funcTree.put(ctx, symb);
                 System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
             }
+
+            scopeTree.put(ctx, currentScope);
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
         return super.visitSetVariable(ctx);

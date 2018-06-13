@@ -20,8 +20,6 @@
 
 	return
 .end method
-	bipush 1
-	istore 0
 .method public doAThing(Ljava/lang/Object)
 	bipush 44
 	istore 2
@@ -33,6 +31,8 @@
 	.limit stack 2
 	.limit locals 2
 
+	bipush 1
+	istore 0
 
 	return
 .end method
