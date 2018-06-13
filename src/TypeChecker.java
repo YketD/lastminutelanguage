@@ -12,7 +12,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
     private int scopecount = 1;
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
-    private ParseTreeProperty scopeTree, funcTree;
+    private ParseTreeProperty scopeTree, funcTree, expressionTree;
     private Scope scope, currentScope;
 
     public TypeChecker()
@@ -22,6 +22,27 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         scopeTree = new ParseTreeProperty();
         funcTree = new ParseTreeProperty();
+        expressionTree = new ParseTreeProperty();
+    }
+
+    public ParseTreeProperty getScopeTree()
+    {
+        return scopeTree;
+    }
+
+    public ParseTreeProperty getFuncTree()
+    {
+        return funcTree;
+    }
+
+    public ParseTreeProperty getExpressionTree()
+    {
+        return expressionTree;
+    }
+
+    public Scope getScope()
+    {
+        return scope;
     }
 
     private void newScope(String scopeName, ParserRuleContext ctx)

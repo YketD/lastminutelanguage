@@ -24,4 +24,22 @@ public class Symbol
     {
         return name;
     }
+
+    public String getMnenonic()
+    {
+        switch (this.type) {
+            case FLOAT:
+                return "F";
+            case INT:
+                return "I";
+            case BOOL:
+                return "Z";
+            case FUNCTION:
+                return "V";
+            case STRING:
+                return "Ljava/lang/String;";
+            default:
+                return "Ljava/lang/Object";
+        }
+    }
 }
