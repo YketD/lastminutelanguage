@@ -264,17 +264,14 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         }
         String scopeName = "forScope" + scopecount;
 
-        scope = new Scope(scopeName, currentScope);
-        currentScope.addChild(scope);
+        newScope(scopeName, ctx);
         scopecount ++;
-        currentScope = scope;
 
         visit(ctx.vardecl());
         visit(ctx.condition());
         visit(ctx.varcalc());
         visit(ctx.body());
-        currentScope = currentScope.getParentScope();
-        currentScope.removeChild(scopeName);
+        closeScope(scopeName);
 
 
         return null;
