@@ -13,26 +13,44 @@
 
 	aload 0
 
-	new test.lm
+	new test
 	dup
-	invokespecial  test.lm/<init>()V
-	invokespecial  test.lm/run()V
+	invokespecial  test/<init>()V
+	invokespecial  test/run()V
 
 	return
 .end method
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+	bipush 1
+	istore 0
+>>>>>>> master
 .method public doAThing(Ljava/lang/Object)
 	bipush 44
 	istore 2
 	ldc 765433
 	istore 3
 .end method
+>>>>>>> master
 
 .method public run()V
 	.limit stack 2
 	.limit locals 2
 
+<<<<<<< HEAD
 	bipush 1
 	istore 0
+=======
+<<<<<<< HEAD
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	ldc "test"
+	    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
+
+=======
+>>>>>>> master
+>>>>>>> master
 
 	return
 .end method

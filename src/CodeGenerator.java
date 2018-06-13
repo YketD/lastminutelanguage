@@ -50,10 +50,13 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         printWriter.println("\t.limit stack 5");
         printWriter.println("\t.limit locals 1");
         printWriter.println("\r\n\taload 0");
-        printWriter.println("\r\n\tnew " + fileName);
+        printWriter.println("\r\n\tnew " + this.fileName.split("\\.")[0]);
         printWriter.println("\tdup");
-        printWriter.println("\tinvokespecial  " + fileName + "/<init>()V");
-        printWriter.println("\tinvokespecial  " + fileName + "/run()V");
+        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/<init>()V");
+        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/run()V");
+
+
+
         printWriter.println("\r\n\treturn");
         printWriter.println(".end method");
 
@@ -78,10 +81,23 @@ public class CodeGenerator extends LastMinuteBaseVisitor
     }
 
     @Override
+    public Object visitFunccall(LastMinuteParser.FunccallContext ctx) {
+        if (ctx.identifier().getText().equals("print")){
+            System.out.println("print function called");
+            System.out.println(ctx.extendedparams().varvalue().get(0).varvalstring().STRING());
+            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            functions.append("\tldc " + ctx.extendedparams().varvalue().get(0).varvalstring().getText()+ "\n");
+           functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+        }
+        return super.visitFunccall(ctx);
+    }
+
+    @Override
     public Object visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
-        printWriter.print(".method public " + ctx.identifier().getText() + "(");
 
+        printWriter.print(".method public " + ctx.identifier().getText() + "(");
+        System.out.println("entered funcdecl");
         Function method = (Function) funcTree.get(ctx);
         for(Symbol param : method.getParams())
         {
@@ -180,7 +196,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor
     @Override
     public Object visitFuncbody(LastMinuteParser.FuncbodyContext ctx)
     {
-
         return super.visitFuncbody(ctx);
     }
 
