@@ -1,4 +1,5 @@
 import Model.*;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
@@ -21,6 +22,28 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         scopeTree = new ParseTreeProperty();
         funcTree = new ParseTreeProperty();
+    }
+
+    private void newScope(String scopeName, ParserRuleContext ctx)
+    {
+        Scope newScope = new Scope(scopeName, currentScope);
+        currentScope.addChild(newScope);
+        currentScope = newScope;
+        scopeTree.put(ctx, currentScope);
+    }
+
+    private void newFuncScope(String funcName, Function func, ParserRuleContext ctx)
+    {
+        FuncScope newScope = new FuncScope(funcName, func, currentScope);
+        currentScope.addChild(newScope);
+        currentScope = newScope;
+        scopeTree.put(ctx, currentScope);
+    }
+
+    private void closeScope(String scopeName)
+    {
+        currentScope = currentScope.getParentScope();
+        currentScope.removeChild(scopeName);
     }
 
     @Override
@@ -56,10 +79,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 }
             }
 
-            FuncScope newScope = new FuncScope(funcName, func, currentScope);
-            currentScope.addChild(newScope);
-            currentScope = newScope;
-            scopeTree.put(ctx, currentScope);
+            newFuncScope(funcName, func, ctx);
 
             currentScope.declareFunction(func);
             funcmap.put(func.getName(), func);
@@ -76,8 +96,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         visit(ctx.funcreturn());
 
         String scopeName = currentScope.getName();
-        currentScope = currentScope.getParentScope();
-        currentScope.removeChild(scopeName);
+        closeScope(scopeName);
 
         return null;
     }
@@ -95,15 +114,11 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         visit(ctx.condition());
 
         String scopeName = "scope_" + scopecount++;
-        Scope newScope = new Scope(scopeName, currentScope);
-        currentScope.addChild(newScope);
-        currentScope = newScope;
-        scopeTree.put(ctx, currentScope);
+        newScope(scopeName, ctx);
 
         visit(ctx.body());
 
-        currentScope = currentScope.getParentScope();
-        currentScope.removeChild(scopeName);
+        closeScope(scopeName);
 
         return null;
     }
@@ -117,15 +132,11 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
 
             String scopeName = "scope_" + scopecount++;
-            Scope newScope = new Scope(scopeName, currentScope);
-            currentScope.addChild(newScope);
-            currentScope = newScope;
-            scopeTree.put(ctx, currentScope);
+            newScope(scopeName, ctx);
 
             visit(ctx.body());
 
-            currentScope = currentScope.getParentScope();
-            currentScope.removeChild(scopeName);
+            closeScope(scopeName);
         }
 
         return null;
