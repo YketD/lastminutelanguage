@@ -1,1 +1,11 @@
-print("test");
+globalVar: 1;
+
+doAThing(withThis)
+{
+  tempVar: 44;
+  tempVar +: globalVar;
+
+  tempVar2: 765433;
+
+  return 1;
+}

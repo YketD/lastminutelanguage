@@ -1,5 +1,6 @@
 import Model.Function;
 import Model.Symbol;
+import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.io.FileNotFoundException;
@@ -70,8 +71,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         printWriter.println("\r\n.method public run()V");
         printWriter.println("\t.limit stack 2");// + (globalScope.getLocalStack() + 1));
         printWriter.println("\t.limit locals 2\r\n"); // + (globalScope.getLocalAmount()) + "\r\n");
-        //visitChildren(ctx.blok());
-        printWriter.println(functions);
+
+        printWriter.print(functions.toString());
+
         printWriter.println("\r\n\treturn");
         printWriter.println(".end method\r\n");
     }
@@ -112,10 +114,77 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         return null;
     }
 
+    private void storeVar(Types symbolType, int id)
+    {
+        switch (symbolType)
+        {
+            case BOOL:
+                printWriter.println("\tistore " + id);
+                break;
+            case FLOAT:
+                printWriter.println("\tfstore " + id);
+                break;
+            case INT:
+                printWriter.println("\tistore " + id);
+                break;
+            case STRING:
+                printWriter.println("\tastore " + id);
+                break;
+        }
+    }
+
+    private void loadVar(Types symbolType, int id)
+    {
+        switch (symbolType)
+        {
+            case BOOL:
+                printWriter.println("\tiload " + id);
+                break;
+            case FLOAT:
+                printWriter.println("\tfload " + id);
+                break;
+            case INT:
+                printWriter.println("\tiload " + id);
+                break;
+            case STRING:
+                printWriter.println("\taload " + id);
+                break;
+        }
+    }
+
+    private void pushVar(Symbol symbol, String rawValue)
+    {
+        if (symbol.getType() == Types.INT)
+        {
+            int value = 0;
+            try { value = Integer.valueOf(rawValue); }
+            catch (NumberFormatException e) {}
+
+            if (value >= 0 && value < 128) {
+                printWriter.println("\tbipush " + value);
+            } else if (value >= 128 && value < 32768) {
+                printWriter.println("\tsipush " + value);
+            } else {
+                printWriter.println("\tldc " + value);
+            }
+        }
+    }
+
     @Override
     public Object visitFuncbody(LastMinuteParser.FuncbodyContext ctx)
     {
         return super.visitFuncbody(ctx);
+    }
+
+    @Override
+    public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx)
+    {
+        Symbol symbol = (Symbol) funcTree.get(ctx);
+
+        pushVar(symbol, ctx.varvalue().getText());
+        storeVar(symbol.getType(), symbol.getId());
+
+        return super.visitSetVariable(ctx);
     }
 
     //visitStatement

@@ -7,11 +7,18 @@ public class Symbol
 {
     private String name;
     private Types type;
+    private int id;
 
     public Symbol(String name, Types type)
     {
         this.name = name;
         this.type = type;
+        this.id = Scope.declCount++;
+    }
+
+    public int getId()
+    {
+        return id;
     }
 
     public void setType(Types type) { this.type = type; }

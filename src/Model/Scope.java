@@ -1,6 +1,5 @@
 package Model;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 /**
@@ -8,10 +7,11 @@ import java.util.LinkedHashMap;
  */
 public class Scope
 {
+    public static int declCount = 0;
+
     private String name;
     private LinkedHashMap<String, Symbol> variables;
     private LinkedHashMap<String, Function> functions;
-    private int declCount;
     private LinkedHashMap<String, Scope> childScopes;
     private Scope parentScope;
 
