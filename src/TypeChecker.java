@@ -262,12 +262,22 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         if (((LastMinuteParser.SetVariableContext)ctx.vardecl()).varvalue().varvalnum() == null){
             System.err.println("vardecl in for loop is of wrong type, expecting int");
         }
-        scope = new Scope("forScope" + scopecount, currentScope);
+        String scopeName = "forScope" + scopecount;
+
+        scope = new Scope(scopeName, currentScope);
         currentScope.addChild(scope);
         scopecount ++;
         currentScope = scope;
 
-        return super.visitForloop(ctx);
+        visit(ctx.vardecl());
+        visit(ctx.condition());
+        visit(ctx.varcalc());
+        visit(ctx.body());
+        currentScope = currentScope.getParentScope();
+        currentScope.removeChild(scopeName);
+
+
+        return null;
     }
 
     @Override
