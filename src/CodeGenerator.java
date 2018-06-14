@@ -78,7 +78,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitFunccall(LastMinuteParser.FunccallContext ctx) {
         if (ctx.identifier().getText().equals("print")) {
             printcall(ctx);
-        }   else{
+        } else {
             String title = ctx.identifier().getText();
             functions.append("\taload_0 \n");
             functions.append("\tinvokevirtual test/" + title + "()V \n");
@@ -87,7 +87,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         return super.visitFunccall(ctx);
     }
 
-    private void printcall(LastMinuteParser.FunccallContext ctx){
+    private void printcall(LastMinuteParser.FunccallContext ctx) {
         System.out.println("print function called");
         System.out.println(fromContext(ctx.extendedparams().varvalue(0)));
         Types type = fromContext(ctx.extendedparams().varvalue(0));
@@ -95,19 +95,20 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (type == Types.STRING) {
             print(ctx.extendedparams().varvalue().get(0).varvalstring().getText());
         } else if (type == Types.INT) {
-            print("\"" + ctx.extendedparams().varvalue().get(0).varvalnum().getText()+ "\"");
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalnum().getText() + "\"");
         } else if (type == Types.FLOAT) {
-            print("\"" + ctx.extendedparams().varvalue().get(0).varvalfloat().getText()+ "\"");
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalfloat().getText() + "\"");
         } else if (type == Types.BOOL) {
-            print("\"" + ctx.extendedparams().varvalue().get(0).varvalbool().getText()+ "\"");
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalbool().getText() + "\"");
         } else if (type == Types.CHAR) {
-            print("\"" + ctx.extendedparams().varvalue().get(0).varvalchar().getText()+ "\"");
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalchar().getText() + "\"");
         } else if (type == Types.ARRAY) {
             System.err.println("cant print array");
         } else {
             print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
         }
     }
+
     private String getVariable(String identifier) {
         return ("TODO: get the variable (value) in the getVariable() function");
     }
@@ -118,8 +119,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.print(".method public " + ctx.identifier().getText() + "(");
         System.out.println("entered funcdecl");
         Function func = (Function) funcTree.get(ctx);
-        for(Symbol param : func.getParams())
-        {
+        for (Symbol param : func.getParams()) {
             printWriter.print(Symbol.getMnenonic(param.getType()));
             printWriter.print(";");
         }
@@ -134,18 +134,17 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             if (body.funccall() != null)
                 visit(body.funccall());
             else if (body.if_else() != null)
-                print("Todo: visit if else");
+                print("\"Todo: visit if else\"");
             else if (body.vardecl() != null)
-                print("Todo: visit vardecl");
+                print("\"Todo: visit vardecl\"");
             else if (body.varcalc() != null)
-                print("todo: visit varcalc");
-                visit(ctx.funcreturn());
+                print("\"todo: visit varcalc\"");
+        visit(ctx.funcreturn());
 
         global = true;
         visit(ctx.funcreturn());
 
-        if (func.getReturnType() != Types.UNASSIGNED)
-        {
+        if (func.getReturnType() != Types.UNASSIGNED) {
             if (func.getReturnId() != -1)
                 loadVar(func.getReturnType(), func.getReturnId(), printWriter);
             else
@@ -164,21 +163,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         {
             switch (symbolType)
             {
-    public void print(String print){
-        if (global) {
-            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            functions.append("\tldc " + print + "\n");
-            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
-        }else {
-            printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
-            printWriter.println("\tldc " + print);
-            printWriter.println("\tinvokevirtual java/io/PrintStream/print(Ljava/lang/String;)V ");
-        }
-        }
-
-    private void storeVar(Types symbolType, int id, Appendable pw) {
-        try {
-            switch (symbolType) {
                 case BOOL:
                 case INT:
                     pw.append("\tireturn\r\n");
@@ -200,12 +184,21 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         }
     }
 
-    private void storeVar(Types symbolType, int id, Appendable pw)
-    {
-        try
-        {
-            switch (symbolType)
-            {
+    public void print (String print){
+        if (global) {
+            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            functions.append("\tldc " + print + "\n");
+            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+        } else {
+            printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
+            printWriter.println("\tldc " + print);
+            printWriter.println("\tinvokevirtual java/io/PrintStream/print(Ljava/lang/String;)V ");
+        }
+    }
+
+    private void storeVar(Types symbolType, int id, Appendable pw) {
+        try {
+            switch (symbolType) {
                 case BOOL:
                     pw.append("\tistore " + id + "\r\n");
                     break;
@@ -243,10 +236,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         }
     }
 
-    private void pushVar(Types symbolType, String rawValue, Appendable pw)
-    {
-        if (symbolType == Types.INT)
-        {
+    private void pushVar(Types symbolType, String rawValue, Appendable pw) {
+        if (symbolType == Types.INT) {
             int value = 0;
             try {
                 value = Integer.valueOf(rawValue);
