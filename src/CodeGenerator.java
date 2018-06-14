@@ -9,15 +9,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-public class CodeGenerator extends LastMinuteBaseVisitor
-{
+public class CodeGenerator extends LastMinuteBaseVisitor {
     private String fileName;
     private PrintWriter printWriter;
     private ParseTreeProperty scopeTree, funcTree;
     private StringBuilder functions;
 
-    public CodeGenerator(String fileName, ParseTreeProperty scopeTree, ParseTreeProperty funcTree) throws FileNotFoundException, UnsupportedEncodingException
-    {
+    public CodeGenerator(String fileName, ParseTreeProperty scopeTree, ParseTreeProperty funcTree) throws FileNotFoundException, UnsupportedEncodingException {
         this.fileName = fileName;
         this.scopeTree = scopeTree;
         this.funcTree = funcTree;
@@ -28,13 +26,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         createMainMethod();
     }
 
-    public PrintWriter getPrintWriter()
-    {
+    public PrintWriter getPrintWriter() {
         return printWriter;
     }
 
-    private void createClass() throws FileNotFoundException, UnsupportedEncodingException
-    {
+    private void createClass() throws FileNotFoundException, UnsupportedEncodingException {
         printWriter.println(".class public " + this.fileName.split("\\.")[0]
                 + "\r\n.super java/lang/Object" +
                 "\r\n\r\n.method public <init>()V" +
@@ -44,8 +40,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
                 "\r\n.end method\r\n");
     }
 
-    private void createMainMethod()
-    {
+    private void createMainMethod() {
         printWriter.println(".method public static main([Ljava/lang/String;)V");
         printWriter.println("\t.limit stack 5");
         printWriter.println("\t.limit locals 1");
@@ -66,8 +61,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
 //        }
     }
 
-    public void createRunMethod()
-    {
+    public void createRunMethod() {
         printWriter.println("\r\n.method public run()V");
         printWriter.println("\t.limit stack 2");// + (globalScope.getLocalStack() + 1));
         printWriter.println("\t.limit locals 2\r\n"); // + (globalScope.getLocalAmount()) + "\r\n");
@@ -80,19 +74,38 @@ public class CodeGenerator extends LastMinuteBaseVisitor
 
     @Override
     public Object visitFunccall(LastMinuteParser.FunccallContext ctx) {
-        if (ctx.identifier().getText().equals("print")){
+        if (ctx.identifier().getText().equals("print")) {
             System.out.println("print function called");
-            System.out.println(ctx.extendedparams().varvalue().get(0).varvalstring().STRING());
+            Types type = fromContext(ctx.extendedparams().varvalue(0));
+            String print = "";
+            if (type == Types.STRING) {
+                print = ctx.extendedparams().varvalue().get(0).varvalstring().getText();
+            } else if (type == Types.INT) {
+                print = (ctx.extendedparams().varvalue().get(0).varvalnum().getText());
+            } else if (type == Types.FLOAT) {
+                print = (ctx.extendedparams().varvalue().get(0).varvalfloat().getText());
+            } else if (type == Types.BOOL) {
+                print = (ctx.extendedparams().varvalue().get(0).varvalbool().getText());
+            } else if (type == Types.CHAR) {
+                print = (ctx.extendedparams().varvalue().get(0).varvalchar().getText());
+            } else if (type == Types.ARRAY) {
+                System.err.println("cant print array");
+            } else {
+                print = getVariable(ctx.extendedparams().varvalue(0).identifier().getText());
+            }
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            functions.append("\tldc " + ctx.extendedparams().varvalue().get(0).varvalstring().getText()+ "\n");
-           functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+            functions.append("\tldc " + print + "\n");
+            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
         }
         return super.visitFunccall(ctx);
     }
 
+    private String getVariable(String identifier) {
+        return ("TODO: get the variable (value) in the getVariable() function");
+    }
+
     @Override
-    public Object visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
-    {
+    public Object visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) {
 
         printWriter.print(".method public " + ctx.identifier().getText() + "(");
         System.out.println("entered funcdecl");
@@ -109,7 +122,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         printWriter.println("\t.limit stack 100\r\n" +
                 "\t.limit locals 100");
 
-        for(LastMinuteParser.FuncbodyContext body : ctx.funcbody())
+        for (LastMinuteParser.FuncbodyContext body : ctx.funcbody())
             visit(body);
 
         visit(ctx.funcreturn());
@@ -174,19 +187,14 @@ public class CodeGenerator extends LastMinuteBaseVisitor
                     pw.append("\tastore " + id + "\r\n");
                     break;
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void loadVar(Types symbolType, int id, Appendable pw)
-    {
-        try
-        {
-            switch (symbolType)
-            {
+    private void loadVar(Types symbolType, int id, Appendable pw) {
+        try {
+            switch (symbolType) {
                 case BOOL:
                 case INT:
                     pw.append("\tiload " + id + "\r\n");
@@ -198,9 +206,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
                     pw.append("\taload " + id + "\r\n");
                     break;
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -210,11 +216,12 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         if (symbolType == Types.INT)
         {
             int value = 0;
-            try { value = Integer.valueOf(rawValue); }
-            catch (NumberFormatException e) {}
+            try {
+                value = Integer.valueOf(rawValue);
+            } catch (NumberFormatException e) {
+            }
 
-            try
-            {
+            try {
                 if (value >= 0 && value < 128) {
                     pw.append("\tbipush " + value + "\r\n");
                 } else if (value >= 128 && value < 32768) {
@@ -223,22 +230,19 @@ public class CodeGenerator extends LastMinuteBaseVisitor
                     pw.append("\tldc " + value + "\r\n");
                 }
 
-            } catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
     @Override
-    public Object visitFuncbody(LastMinuteParser.FuncbodyContext ctx)
-    {
+    public Object visitFuncbody(LastMinuteParser.FuncbodyContext ctx) {
         return super.visitFuncbody(ctx);
     }
 
     @Override
-    public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx)
-    {
+    public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
         Scope scope = (Scope) scopeTree.get(ctx);
         Symbol symbol = (Symbol) funcTree.get(ctx);
 
@@ -250,6 +254,23 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         return super.visitSetVariable(ctx);
     }
 
+    public Types fromContext(LastMinuteParser.VarvalueContext ctx) {
+        Types type;
+        if (ctx.varvalarray() != null)
+            type = (Types.ARRAY);
+        else if (ctx.varvalbool() != null)
+            type = (Types.BOOL);
+        else if (ctx.varvalchar() != null)
+            type = (Types.CHAR);
+        else if (ctx.varvalnum() != null)
+            type = (Types.INT);
+        else if (ctx.varvalstring() != null)
+            type = (Types.STRING);
+        else {
+            type = null;
+        }
+        return type;
+    }
     //visitStatement
 
     //visitCalculation

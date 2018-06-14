@@ -63,3 +63,5 @@ fabric.properties
 \.idea/
 
 test\.lm
+
+test\.class
