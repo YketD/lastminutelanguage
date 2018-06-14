@@ -15,6 +15,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private ParseTreeProperty scopeTree, funcTree;
     private StringBuilder functions;
 
+    private boolean global = true;
+
     public CodeGenerator(String fileName, ParseTreeProperty scopeTree, ParseTreeProperty funcTree) throws FileNotFoundException, UnsupportedEncodingException {
         this.fileName = fileName;
         this.scopeTree = scopeTree;
@@ -64,8 +66,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     public void createRunMethod() {
         printWriter.println("\r\n.method public run()V");
-        printWriter.println("\t.limit stack 2");// + (globalScope.getLocalStack() + 1));
-        printWriter.println("\t.limit locals 2\r\n"); // + (globalScope.getLocalAmount()) + "\r\n");
+        printWriter.println("\t.limit stack 100");// + (globalScope.getLocalStack() + 1));
+        printWriter.println("\t.limit locals 100\r\n"); // + (globalScope.getLocalAmount()) + "\r\n");
 
         printWriter.print(functions.toString());
 
@@ -76,38 +78,44 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     @Override
     public Object visitFunccall(LastMinuteParser.FunccallContext ctx) {
         if (ctx.identifier().getText().equals("print")) {
-            System.out.println("print function called");
-            Types type = fromContext(ctx.extendedparams().varvalue(0));
-            String print = "";
-            if (type == Types.STRING) {
-                print = ctx.extendedparams().varvalue().get(0).varvalstring().getText();
-            } else if (type == Types.INT) {
-                print = (ctx.extendedparams().varvalue().get(0).varvalnum().getText());
-            } else if (type == Types.FLOAT) {
-                print = (ctx.extendedparams().varvalue().get(0).varvalfloat().getText());
-            } else if (type == Types.BOOL) {
-                print = (ctx.extendedparams().varvalue().get(0).varvalbool().getText());
-            } else if (type == Types.CHAR) {
-                print = (ctx.extendedparams().varvalue().get(0).varvalchar().getText());
-            } else if (type == Types.ARRAY) {
-                System.err.println("cant print array");
-            } else {
-                print = getVariable(ctx.extendedparams().varvalue(0).identifier().getText());
-            }
-            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            functions.append("\tldc " + print + "\n");
-            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+            printcall(ctx);
+        }   else{
+            String title = ctx.identifier().getText();
+            functions.append("\taload_0 \n");
+            functions.append("\tinvokevirtual test/" + title + "()V \n");
+
         }
         return super.visitFunccall(ctx);
     }
 
+    private void printcall(LastMinuteParser.FunccallContext ctx){
+        System.out.println("print function called");
+        System.out.println(fromContext(ctx.extendedparams().varvalue(0)));
+        Types type = fromContext(ctx.extendedparams().varvalue(0));
+        String print = "";
+        if (type == Types.STRING) {
+            print(ctx.extendedparams().varvalue().get(0).varvalstring().getText());
+        } else if (type == Types.INT) {
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalnum().getText()+ "\"");
+        } else if (type == Types.FLOAT) {
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalfloat().getText()+ "\"");
+        } else if (type == Types.BOOL) {
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalbool().getText()+ "\"");
+        } else if (type == Types.CHAR) {
+            print("\"" + ctx.extendedparams().varvalue().get(0).varvalchar().getText()+ "\"");
+        } else if (type == Types.ARRAY) {
+            System.err.println("cant print array");
+        } else {
+            print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
+        }
+    }
     private String getVariable(String identifier) {
         return ("TODO: get the variable (value) in the getVariable() function");
     }
 
     @Override
     public Object visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) {
-
+        global = false;
         printWriter.print(".method public " + ctx.identifier().getText() + "(");
         System.out.println("entered funcdecl");
         Function method = (Function) funcTree.get(ctx);
@@ -125,14 +133,32 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 "\t.limit locals 100");
 
         for (LastMinuteParser.FuncbodyContext body : ctx.funcbody())
-            visit(body);
-
-        visit(ctx.funcreturn());
+            if (body.funccall() != null)
+                visit(body.funccall());
+            else if (body.if_else() != null)
+                print("Todo: visit if else");
+            else if (body.vardecl() != null)
+                print("Todo: visit vardecl");
+            else if (body.varcalc() != null)
+                print("todo: visit varcalc");
+                visit(ctx.funcreturn());
 
         printWriter.println("return\r\n.end method");
-
+        global = true;
         return null;
     }
+
+    public void print(String print){
+        if (global) {
+            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            functions.append("\tldc " + print + "\n");
+            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+        }else {
+            printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
+            printWriter.println("\tldc " + print);
+            printWriter.println("\tinvokevirtual java/io/PrintStream/print(Ljava/lang/String;)V ");
+        }
+        }
 
     private void storeVar(Types symbolType, int id, Appendable pw) {
         try {
