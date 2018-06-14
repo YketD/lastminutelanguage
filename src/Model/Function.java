@@ -9,13 +9,15 @@ import java.util.List;
 public class Function
 {
     private Types returnType;
+    private int returnId;
     private List<Symbol> params;
     private String name;
 
-    public Function(String name, Types returnType)
+    public Function(String name)
     {
         this.name = name;
-        this.returnType = returnType;
+        this.returnType = Types.UNASSIGNED;
+        this.returnId = -1;
         this.params = new ArrayList<>();
     }
 
@@ -37,5 +39,21 @@ public class Function
     public String getName()
     {
         return name;
+    }
+
+    public Types getReturnType()
+    {
+        return returnType;
+    }
+
+    public int getReturnId()
+    {
+        return returnId;
+    }
+
+    public void setReturnType(Types returnType, int returnId)
+    {
+        this.returnType = returnType;
+        this.returnId = returnId;
     }
 }
