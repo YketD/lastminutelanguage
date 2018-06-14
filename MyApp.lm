@@ -1,13 +1,18 @@
-globalVar: 1;
-
 print("hi hi");
 
-doAThing(withThis)
+doAThing()
 {
-  tempVar: 44;
-  tempVar +: globalVar;
+  a: 2;
+  b: 1;
+  return b;
+}
 
-  tempVar2: 765433;
-
+doAnotherThing(str)
+{
   return 1;
+}
+
+doNothing()
+{
+  return;
 }

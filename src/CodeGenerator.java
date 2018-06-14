@@ -55,10 +55,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/<init>()V");
         printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/run()V");
 
-
-
         printWriter.println("\r\n\treturn");
-        printWriter.println(".end method");
+        printWriter.println(".end method\r\n");
 
 //        if (ctx.methodeUITVOERING() != null) {
 //            for (int i = 0; i < ctx.methodeUITVOERING().size(); i++) {
@@ -98,13 +96,15 @@ public class CodeGenerator extends LastMinuteBaseVisitor
 
         printWriter.print(".method public " + ctx.identifier().getText() + "(");
         System.out.println("entered funcdecl");
-        Function method = (Function) funcTree.get(ctx);
-        for(Symbol param : method.getParams())
+        Function func = (Function) funcTree.get(ctx);
+        for(Symbol param : func.getParams())
         {
-            printWriter.print(param.getMnenonic());
+            printWriter.print(Symbol.getMnenonic(param.getType()));
+            printWriter.print(";");
         }
 
-        printWriter.println(";)V");
+        printWriter.println(")" + (func.getReturnType() == Types.UNASSIGNED ? "V" :
+                Symbol.getMnenonic(func.getReturnType())));
 
         printWriter.println("\t.limit stack 100\r\n" +
                 "\t.limit locals 100");
@@ -114,9 +114,45 @@ public class CodeGenerator extends LastMinuteBaseVisitor
 
         visit(ctx.funcreturn());
 
-        printWriter.println("return\r\n.end method");
+        if (func.getReturnType() != Types.UNASSIGNED)
+        {
+            if (func.getReturnId() != -1)
+                loadVar(func.getReturnType(), func.getReturnId(), printWriter);
+            else
+                pushVar(func.getReturnType(), ctx.funcreturn().returnVar.getText(), printWriter);
+        }
+        createReturn(func.getReturnType(), printWriter);
+
+        printWriter.println(".end method\r\n");
 
         return null;
+    }
+
+    private void createReturn(Types symbolType, Appendable pw)
+    {
+        try
+        {
+            switch (symbolType)
+            {
+                case BOOL:
+                case INT:
+                    pw.append("\tireturn\r\n");
+                    break;
+                case FLOAT:
+                    pw.append("\tfreturn\r\n");
+                    break;
+                case STRING:
+                    pw.append("\tareturn\r\n");
+                    break;
+                default:
+                    pw.append("\treturn\r\n");
+                    break;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void storeVar(Types symbolType, int id, Appendable pw)
@@ -152,13 +188,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor
             switch (symbolType)
             {
                 case BOOL:
+                case INT:
                     pw.append("\tiload " + id + "\r\n");
                     break;
                 case FLOAT:
                     pw.append("\tfload " + id + "\r\n");
-                    break;
-                case INT:
-                    pw.append("\tiload " + id + "\r\n");
                     break;
                 case STRING:
                     pw.append("\taload " + id + "\r\n");
@@ -171,9 +205,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor
         }
     }
 
-    private void pushVar(Symbol symbol, String rawValue, Appendable pw)
+    private void pushVar(Types symbolType, String rawValue, Appendable pw)
     {
-        if (symbol.getType() == Types.INT)
+        if (symbolType == Types.INT)
         {
             int value = 0;
             try { value = Integer.valueOf(rawValue); }
@@ -210,7 +244,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor
 
         Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
 
-        pushVar(symbol, ctx.varvalue().getText(), pw);
+        pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
         storeVar(symbol.getType(), symbol.getId(), pw);
 
         return super.visitSetVariable(ctx);

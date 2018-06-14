@@ -73,52 +73,72 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         // Get function name
         String funcName = ctx.identifier().getText();
 
-        if (currentScope.lookupFunction(funcName) == null)
-        {
-            Function func = new Function(funcName, fromContext(ctx.funcreturn().returnVar));
-
-            // Check if has parameters
-            if (ctx.params().children != null)
-            {
-                // Loop through parameters
-                for (int i = 0; i < ctx.params().children.size(); i++)
-                {
-                    String paramName = ctx.params().children.get(i).getText();
-
-                    for (int j = 0; j < ctx.params().children.size(); j++)
-                    {
-                        if (func.hasParam(paramName))
-                            throw new IllegalArgumentException("Function " + funcName + " duplicate parameter entry " + paramName);
-                    }
-
-                    // Only get identifier contexts, skipping the ',' separator chars
-                    if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
-                    {
-                        // Found one param
-                        func.addParam(new Symbol(paramName, Types.UNASSIGNED));
-                    }
-                }
-            }
-
-            newFuncScope(funcName, func, ctx);
-
-            currentScope.declareFunction(func);
-            funcmap.put(func.getName(), func);
-            funcTree.put(ctx, func);
-        }
-        else
+        if (currentScope.lookupFunction(funcName) != null)
         {
             throw new KeyAlreadyExistsException("Function " + funcName + " duplicate method entry");
         }
 
+        Function func = new Function(funcName);
+
+        // Check if has parameters
+        if (ctx.params().children != null)
+        {
+            // Loop through parameters
+            for (int i = 0; i < ctx.params().children.size(); i++)
+            {
+                String paramName = ctx.params().children.get(i).getText();
+
+                for (int j = 0; j < ctx.params().children.size(); j++)
+                {
+                    if (func.hasParam(paramName))
+                        throw new IllegalArgumentException("Function " + funcName + " duplicate parameter entry " + paramName);
+                }
+
+                // Only get identifier contexts, skipping the ',' separator chars
+                if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
+                {
+                    // Found one param
+                    func.addParam(new Symbol(paramName, Types.UNASSIGNED));
+                }
+            }
+        }
+
+        newFuncScope(funcName, func, ctx);
+
+        currentScope.declareFunction(func);
+        funcmap.put(func.getName(), func);
+        funcTree.put(ctx, func);
+
         for(LastMinuteParser.FuncbodyContext body : ctx.funcbody())
             visit(body);
 
-        visit(ctx.funcreturn());
+        // Return statement
+        Types returnType = Types.UNASSIGNED;
+        int returnId = -1;
+        func.setReturnType(returnType, returnId);
 
-        String scopeName = currentScope.getName();
-        closeScope(scopeName);
+        if (ctx.funcreturn() != null)
+        {
+            if (ctx.funcreturn().returnVar != null)
+            {
+                if (ctx.funcreturn().returnVar.identifier() != null)
+                {
+                    Symbol retVar = currentScope.lookupVariable(ctx.funcreturn().returnVar.identifier().getText());
+                    if (retVar == null)
+                        throw new IllegalArgumentException("Function " + funcName + " contains non existing return variable");
+                    else
+                    {
+                        func.setReturnType(retVar.getType(), retVar.getId());
+                    }
+                }
+                else
+                {
+                    func.setReturnType(fromContext(ctx.funcreturn().returnVar), returnId);
+                }
+            }
+        }
 
+        closeScope(currentScope.getName());
         return null;
     }
 
@@ -190,6 +210,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
             System.out.println("succesfully called function: " + func.getName());
         }
+
+
+
         return super.visitFunccall(ctx);
     }
 

@@ -86,13 +86,13 @@ funcdecl
             OPENPAR params CLOSEPAR
             OPENBRACES
             funcbody*
-            funcreturn
+            funcreturn?
             CLOSEBRACES
             ;
 
     funcreturn
     :
-     RETURN returnVar=varvalue ENDL
+     RETURN returnVar=varvalue? ENDL
      ;
     //parameters, zero or one to start, when one, the next all need to have comma's in front
     params

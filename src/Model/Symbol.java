@@ -5,6 +5,24 @@ package Model;
  */
 public class Symbol
 {
+    public static String getMnenonic(Types type)
+    {
+        switch (type) {
+            case FLOAT:
+                return "F";
+            case INT:
+                return "I";
+            case BOOL:
+                return "Z";
+            case FUNCTION:
+                return "V";
+            case STRING:
+                return "Ljava/lang/String";
+            default:
+                return "Ljava/lang/Object";
+        }
+    }
+
     private String name;
     private Types type;
     private int id;
@@ -30,23 +48,5 @@ public class Symbol
     public String getName()
     {
         return name;
-    }
-
-    public String getMnenonic()
-    {
-        switch (this.type) {
-            case FLOAT:
-                return "F";
-            case INT:
-                return "I";
-            case BOOL:
-                return "Z";
-            case FUNCTION:
-                return "V";
-            case STRING:
-                return "Ljava/lang/String;";
-            default:
-                return "Ljava/lang/Object";
-        }
     }
 }
