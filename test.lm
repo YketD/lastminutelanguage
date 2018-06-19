@@ -24,11 +24,7 @@
 .method public doAThing()V
 	.limit stack 100
 	.limit locals 100
-	bipush 1
-	istore 0
-	bipush 2
-	istore 0
-	bipush 3
+	iconst_1
 	istore 0
 	forScope1:
 	bipush 1

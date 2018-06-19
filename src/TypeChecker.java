@@ -230,6 +230,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
             Symbol theSymbol = currentScope.lookupVariable(varName);
 
+            System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
+
             if (theSymbol != null)
             {
                 theSymbol.setType(type);
@@ -237,10 +239,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             else
             {
                 theSymbol = new Symbol(varName, type);
-                currentScope.declareVariable(theSymbol);
-                System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
             }
 
+            currentScope.declareVariable(theSymbol);
             funcTree.put(ctx, theSymbol);
             scopeTree.put(ctx, currentScope);
         }

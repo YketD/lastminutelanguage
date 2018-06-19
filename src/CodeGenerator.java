@@ -248,8 +248,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             int value = 0;
             try {
                 value = Integer.valueOf(rawValue);
-            } catch (NumberFormatException e) {
-            }
+            } catch (NumberFormatException e) { }
 
             try {
                 if (value >= 0 && value < 128) {
@@ -260,6 +259,22 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     pw.append("\tldc " + value + "\r\n");
                 }
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (symbolType == Types.BOOL)
+        {
+            try {
+                pw.append("\ticonst_" + (rawValue.equals("true") ? 1 : 0) + "\r\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else // float, string
+        {
+            try {
+                pw.append("\tldc " + rawValue + "\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
