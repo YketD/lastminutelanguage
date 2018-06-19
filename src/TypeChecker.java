@@ -228,19 +228,20 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         if (type != null)
         {
-            Symbol existingVar = currentScope.lookupVariable(varName);
-            if (existingVar != null)
+            Symbol theSymbol = currentScope.lookupVariable(varName);
+
+            if (theSymbol != null)
             {
-                existingVar.setType(type);
+                theSymbol.setType(type);
             }
             else
             {
-                Symbol symb = new Symbol(varName, type);
-                currentScope.declareVariable(symb);
-                funcTree.put(ctx, symb);
+                theSymbol = new Symbol(varName, type);
+                currentScope.declareVariable(theSymbol);
                 System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
             }
 
+            funcTree.put(ctx, theSymbol);
             scopeTree.put(ctx, currentScope);
         }
         System.out.println("adding variable to: " + currentScope.getName() + "");
@@ -295,14 +296,15 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         String scopeName = "forScope" + scopecount;
 
         newScope(scopeName, ctx);
-        scopecount ++;
+        scopecount++;
+
+        scopeTree.put(ctx, currentScope);
 
         visit(ctx.vardecl());
         visit(ctx.condition());
         visit(ctx.varcalc());
         visit(ctx.body());
         closeScope(scopeName);
-
 
         return null;
     }

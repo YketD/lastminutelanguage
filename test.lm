@@ -21,30 +21,20 @@
 	return
 .end method
 
-.method public doAThing()I
+.method public doAThing()V
 	.limit stack 100
 	.limit locals 100
+	bipush 1
+	istore 0
 	bipush 2
 	istore 0
+	bipush 3
+	istore 0
+	forScope1:
 	bipush 1
 	istore 1
-	getstatic java/lang/System/out Ljava/io/PrintStream;
-	ldc "test"
-	invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
-	iload 1
-	ireturn
-.end method
-
-.method public doAnotherThing(Ljava/lang/Object;)I
-	.limit stack 100
-	.limit locals 100
-	bipush 1
-	ireturn
-.end method
-
-.method public doNothing()V
-	.limit stack 100
-	.limit locals 100
+	bipush 2
+	istore 2
 	return
 .end method
 
@@ -53,11 +43,6 @@
 	.limit stack 100
 	.limit locals 100
 
-	getstatic java/lang/System/out Ljava/io/PrintStream;
-	ldc "hi hi"
-	    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
-	aload_0
-	invokevirtual test/doAThing()I
 
 	return
 .end method

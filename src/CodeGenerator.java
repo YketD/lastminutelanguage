@@ -146,11 +146,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             else if (body.varcalc() != null)
                 print("\"todo: visit varcalc\"");
             */
-            //visit(ctx.funcreturn());
         }
 
         global = true;
-        visit(ctx.funcreturn());
+
 
         if (func.getReturnType() != Types.UNASSIGNED) {
             if (func.getReturnId() != -1)
@@ -283,6 +282,32 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         storeVar(symbol.getType(), symbol.getId(), pw);
 
         return super.visitSetVariable(ctx);
+    }
+
+    @Override
+    public Object visitForloop(LastMinuteParser.ForloopContext ctx)
+    {
+        /*
+        :   FOR
+            OPENPAR
+            vardecl condition ENDL varcalc
+            CLOSEPAR
+            body
+         */
+
+
+        Scope forScope = (Scope) scopeTree.get(ctx);
+        printWriter.println("\t" + forScope.getName() + ":");
+
+        visit(ctx.vardecl());
+
+        visit(ctx.condition());
+
+        visit(ctx.varcalc());
+
+        visit(ctx.body());
+
+        return null;
     }
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx) {

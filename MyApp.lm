@@ -1,21 +1,11 @@
-print("hi hi");
-
 doAThing()
 {
-  a: 2;
-  b: 1;
-  print("test");
-  return b;
-}
+    a: 1;
+    a: 2;
+    a: 3;
 
-doAnotherThing(str)
-{
-  return 1;
+    for(i: 1; i < 2; i++;)
+    {
+        b: 2;
+    }
 }
-
-doNothing()
-{
-  return;
-}
-
-doAThing();
