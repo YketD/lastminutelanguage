@@ -14,6 +14,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private PrintWriter printWriter;
     private ParseTreeProperty scopeTree, funcTree;
     private StringBuilder functions;
+    private String className;
 
     private boolean global = true;
 
@@ -23,6 +24,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         this.funcTree = funcTree;
         this.printWriter = new PrintWriter(fileName, "UTF-8");
         this.functions = new StringBuilder();
+        this.className = this.fileName.split("\\.")[0];
 
         createClass();
         createMainMethod();
@@ -46,11 +48,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.println(".method public static main([Ljava/lang/String;)V");
         printWriter.println("\t.limit stack 5");
         printWriter.println("\t.limit locals 1");
-        printWriter.println("\r\n\taload 0");
+        printWriter.println("\r\n\taload_0");
         printWriter.println("\r\n\tnew " + this.fileName.split("\\.")[0]);
         printWriter.println("\tdup");
-        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/<init>()V");
-        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/run()V");
+        printWriter.println("\tinvokespecial  " + className + "/<init>()V");
+        printWriter.println("\tinvokespecial  " + className + "/run()V");
 
         printWriter.println("\r\n\treturn");
         printWriter.println(".end method\r\n");
@@ -80,8 +82,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printcall(ctx);
         } else {
             String title = ctx.identifier().getText();
-            functions.append("\taload_0 \n");
-            functions.append("\tinvokevirtual test/" + title + "()V \n");
+            Function func = (Function) funcTree.get(ctx);
+            functions.append("\taload_0\n");
+            functions.append("\tinvokevirtual " + className + "/" + title + "()" +  Symbol.getMnenonic(func.getReturnType()) + "\n");
 
         }
         return super.visitFunccall(ctx);
@@ -112,6 +115,67 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private String getVariable(String identifier) {
         return ("TODO: get the variable (value) in the getVariable() function");
     }
+
+    @Override
+    public Object visitCalculation(LastMinuteParser.CalculationContext ctx) {
+        if (ctx.calcVal() != null)
+        pushcalcval(ctx.calcVal());
+
+        if (ctx.calcMore() != null)
+            visitCalcMore(ctx.calcMore().get(0));
+        return super.visitCalculation(ctx);
+    }
+
+    @Override
+    public Object visitCalcMore(LastMinuteParser.CalcMoreContext ctx) {
+        if (ctx.PLUS() != null){
+            pushcalcval(ctx.calcVal());
+            printWriter.println("iadd");
+        }
+        if (ctx.MINUS() != null){
+            pushcalcval(ctx.calcVal());
+            printWriter.println("isub");
+        }
+        if (ctx.TIMES() != null){
+            pushcalcval(ctx.calcVal());
+            printWriter.println("imult");
+        }
+        if (ctx.DIVIDE() != null){
+            pushcalcval(ctx.calcVal());
+            printWriter.println("idiv");
+        }
+        if (ctx.MODULO() != null){
+            pushcalcval(ctx.calcVal());
+            printWriter.println("imod");
+        }
+        return super.visitCalcMore(ctx);
+    }
+
+    private void pushcalcval(LastMinuteParser.CalcValContext ctx){
+        if (ctx.varvalnum()!=null){
+            printWriter.println("bipush " + ctx.varvalnum().INT().getText());
+        }   else if (ctx.varvalfloat()!=null){
+            printWriter.println("ldc " + ctx.varvalfloat().INT(0).getText() + "." +  ctx.varvalfloat().INT(1).getText());
+        }   else if (ctx.identifier()!= null){
+            print(getVariable(ctx.identifier().getText()));
+        }
+    }
+
+    private void calculate(String operator){
+        //print out the operator
+    }
+
+//    @Override
+//    public Object visitCalcVal(LastMinuteParser.CalcValContext ctx) {
+//        if (ctx.varvalfloat() != null){
+//
+//        }if (ctx.varvalnum() != null){
+//
+//        }if (ctx.identifier() != null){
+//
+//        }if (ctx.)
+//        return super.visitCalcVal(ctx);
+//    }
 
     @Override
     public Object visitFuncdecl(LastMinuteParser.FuncdeclContext ctx) {
@@ -193,11 +257,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             functions.append("\tldc " + print + "\n");
-            functions.append("\t    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
+            functions.append("\t    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
         } else {
             printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
             printWriter.println("\tldc " + print);
-            printWriter.println("\tinvokevirtual java/io/PrintStream/print(Ljava/lang/String;)V ");
+            printWriter.println("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V ");
         }
     }
 

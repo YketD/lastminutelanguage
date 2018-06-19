@@ -209,6 +209,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 return null;
             }
             System.out.println("succesfully called function: " + func.getName());
+
+            funcTree.put(ctx, func);
+            scopeTree.put(ctx, currentScope);
         }
 
 

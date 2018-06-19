@@ -4,6 +4,7 @@ doAThing()
 {
   a: 2;
   b: 1;
+  print("test");
   return b;
 }
 
@@ -16,3 +17,5 @@ doNothing()
 {
   return;
 }
+
+doAThing();
