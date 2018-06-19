@@ -47,8 +47,8 @@
 
 
 .method public run()V
-	.limit stack 2
-	.limit locals 2
+	.limit stack 100
+	.limit locals 100
 
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 	ldc "hi hi"

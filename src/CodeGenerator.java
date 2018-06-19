@@ -131,6 +131,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 "\t.limit locals 100");
 
         for (LastMinuteParser.FuncbodyContext body : ctx.funcbody())
+        {
+            visit(body);
+            /*
             if (body.funccall() != null)
                 visit(body.funccall());
             else if (body.if_else() != null)
@@ -139,7 +142,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 print("\"Todo: visit vardecl\"");
             else if (body.varcalc() != null)
                 print("\"todo: visit varcalc\"");
-        visit(ctx.funcreturn());
+            */
+            //visit(ctx.funcreturn());
+        }
 
         global = true;
         visit(ctx.funcreturn());
