@@ -14,6 +14,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private PrintWriter printWriter;
     private ParseTreeProperty scopeTree, funcTree;
     private StringBuilder functions;
+    private String className;
 
     private boolean global = true;
 
@@ -23,6 +24,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         this.funcTree = funcTree;
         this.printWriter = new PrintWriter(fileName, "UTF-8");
         this.functions = new StringBuilder();
+        this.className = this.fileName.split("\\.")[0];
 
         createClass();
         createMainMethod();
@@ -46,11 +48,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.println(".method public static main([Ljava/lang/String;)V");
         printWriter.println("\t.limit stack 5");
         printWriter.println("\t.limit locals 1");
-        printWriter.println("\r\n\taload 0");
+        printWriter.println("\r\n\taload_0");
         printWriter.println("\r\n\tnew " + this.fileName.split("\\.")[0]);
         printWriter.println("\tdup");
-        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/<init>()V");
-        printWriter.println("\tinvokespecial  " + this.fileName.split("\\.")[0] + "/run()V");
+        printWriter.println("\tinvokespecial  " + className + "/<init>()V");
+        printWriter.println("\tinvokespecial  " + className + "/run()V");
 
         printWriter.println("\r\n\treturn");
         printWriter.println(".end method\r\n");
@@ -80,8 +82,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printcall(ctx);
         } else {
             String title = ctx.identifier().getText();
-            functions.append("\taload_0 \n");
-            functions.append("\tinvokevirtual test/" + title + "()V \n");
+            Function func = (Function) funcTree.get(ctx);
+            functions.append("\taload_0\n");
+            functions.append("\tinvokevirtual " + className + "/" + title + "()" +  Symbol.getMnenonic(func.getReturnType()) + "\n");
 
         }
         return super.visitFunccall(ctx);
