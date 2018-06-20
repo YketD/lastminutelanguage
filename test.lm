@@ -51,6 +51,13 @@
 	invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
 	goto whileScope3
 	whileScope3_end:
+	bipush 2
+	bipush 1
+	if_icmpne scope_5_end
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	ldc "a"
+	invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V 
+	scope_5_end:
 	return
 .end method
 

@@ -3,6 +3,7 @@ import Model.Scope;
 import Model.Symbol;
 import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.RuleNode;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -331,6 +332,28 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         visit(ctx.varcalc());
 
         printWriter.println("\tgoto " + scope.getName());
+        printWriter.println("\t" + scope.getName() + "_end:");
+
+        return null;
+    }
+
+    @Override
+    public Object visitIf_else(LastMinuteParser.If_elseContext ctx)
+    {
+        Scope scope = (Scope) scopeTree.get(ctx);
+
+        visit(ctx.conditionalbody().condition());
+        printWriter.println(scope.getName() + "_end");
+        visit(ctx.conditionalbody().body());
+
+        //printWriter.println("\tgoto " + scope.getName() + "_end");
+
+        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
+            visitChildren((RuleNode) ctx.if_else());
+
+        if (ctx.body() != null)
+            visit(ctx.body());
+
         printWriter.println("\t" + scope.getName() + "_end:");
 
         return null;

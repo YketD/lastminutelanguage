@@ -16,4 +16,6 @@ doAThing()
     {
         print("a");
     }
+
+    if (2 == 1) { print("a"); }
 }
