@@ -1,21 +1,6 @@
 doAThing()
 {
-    while (1 < 2)
-    {
-        print("a");
-    }
 
-
-    while (2 == 2)
-    {
-        print("a");
-    }
-
-
-    while (true)
-    {
-        print("a");
-    }
-
-    if (2 == 1) { print("a"); }
 }
+
+doAThing();

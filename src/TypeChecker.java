@@ -1,6 +1,7 @@
 import Model.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.RuleNode;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.LinkedHashMap;
@@ -116,7 +117,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             visit(body);
 
         // Return statement
-        Types returnType = Types.UNASSIGNED;
+        Types returnType = Types.FUNCTION;
         int returnId = -1;
         func.setReturnType(returnType, returnId);
 
@@ -163,17 +164,18 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     @Override
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
-        visit(ctx.conditionalbody());
-
         String scopeName = "scope_" + scopecount++;
         newScope(scopeName, ctx);
 
+        visit(ctx.conditionalbody());
+
         scopeTree.put(ctx, currentScope);
 
+        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
+            visitChildren((RuleNode) ctx.if_else());
+
         if (ctx.body() != null)
-        {
             visit(ctx.body());
-        }
 
         closeScope(scopeName);
         return null;
