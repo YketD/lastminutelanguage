@@ -160,7 +160,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         global = true;
 
 
-        if (func.getReturnType() != Types.UNASSIGNED) {
+        if (func.getReturnType() != Types.FUNCTION) {
             if (func.getReturnId() != -1)
                 loadVar(func.getReturnType(), func.getReturnId(), printWriter);
             else
