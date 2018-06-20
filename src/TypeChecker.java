@@ -165,17 +165,17 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     {
         visit(ctx.conditionalbody());
 
+        String scopeName = "scope_" + scopecount++;
+        newScope(scopeName, ctx);
+
+        scopeTree.put(ctx, currentScope);
+
         if (ctx.body() != null)
         {
-
-            String scopeName = "scope_" + scopecount++;
-            newScope(scopeName, ctx);
-
             visit(ctx.body());
-
-            closeScope(scopeName);
         }
 
+        closeScope(scopeName);
         return null;
     }
     @Override

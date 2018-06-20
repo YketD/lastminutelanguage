@@ -3,6 +3,7 @@ import Model.Scope;
 import Model.Symbol;
 import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.RuleNode;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -432,6 +433,28 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
+    public Object visitIf_else(LastMinuteParser.If_elseContext ctx)
+    {
+        Scope scope = (Scope) scopeTree.get(ctx);
+
+        visit(ctx.conditionalbody().condition());
+        printWriter.println(scope.getName() + "_end");
+        visit(ctx.conditionalbody().body());
+
+        //printWriter.println("\tgoto " + scope.getName() + "_end");
+
+        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
+            visitChildren((RuleNode) ctx.if_else());
+
+        if (ctx.body() != null)
+            visit(ctx.body());
+
+        printWriter.println("\t" + scope.getName() + "_end:");
+
+        return null;
+    }
+
+    @Override
     public Object visitWhileloop(LastMinuteParser.WhileloopContext ctx)
     {
         Scope scope = (Scope) scopeTree.get(ctx);
@@ -515,11 +538,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     {
         System.out.println("entered visitBoolCondition");
 
-        if (ctx.varvalbool().getText().equals("!=")) {
-            printWriter.print("\tif_icmpeq ");
-        } else {
-            printWriter.print("\tif_icmpne ");
-        }
+        pushVar(Types.INT, ctx.varvalbool().getText().equals("true") ? "1" : "0", printWriter);
+        pushVar(Types.INT, "1", printWriter);
+
+        printWriter.print("\tif_icmpne ");
+
         return null;
     }
 
@@ -528,13 +551,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     {
         System.out.println("TODO visitInverseCondition");
         return super.visitInverseCondition(ctx);
-    }
-
-    @Override
-    public Object visitNotEqualCondition(LastMinuteParser.NotEqualConditionContext ctx)
-    {
-        System.out.println("TODO visitNotEqualCondition");
-        return super.visitNotEqualCondition(ctx);
     }
 
     @Override
@@ -555,7 +571,24 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitCompareCondition(LastMinuteParser.CompareConditionContext ctx)
     {
         System.out.println("TODO visitCompareCondition");
-        return super.visitCompareCondition(ctx);
+
+        pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
+        pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+
+        printWriter.print("\tif_icmpne ");
+        return null;
     }
 
+    @Override
+    public Object visitNotEqualCondition(LastMinuteParser.NotEqualConditionContext ctx)
+    {
+        System.out.println("TODO visitNotEqualCondition");
+
+        pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
+        pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+
+        printWriter.print("\tif_icmpeq ");
+        return null;
+    }
 }
+
