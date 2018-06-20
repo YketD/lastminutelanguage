@@ -1,9 +1,19 @@
 doAThing()
 {
-    a: true;
-
     while (1 < 2)
     {
-        a: 2;
+        print("a");
+    }
+
+
+    while (2 == 2)
+    {
+        print("a");
+    }
+
+
+    while (true)
+    {
+        print("a");
     }
 }
