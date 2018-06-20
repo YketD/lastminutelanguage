@@ -31,7 +31,10 @@ public class Symbol
     {
         this.name = name;
         this.type = type;
-        this.id = Scope.declCount++;
+    }
+
+    public void incCount(){
+        this.id =Scope.declCount++;
     }
 
     public int getId()

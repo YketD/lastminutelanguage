@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
  */
 public class Scope
 {
-    public static int declCount = 0;
+    public static int declCount = 1;
 
     private String name;
     private LinkedHashMap<String, Symbol> variables;

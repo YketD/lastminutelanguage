@@ -65,3 +65,5 @@ fabric.properties
 test\.lm
 
 test\.class
+
+MyApp\.lm

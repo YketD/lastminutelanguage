@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 
 public class CodeGenerator extends LastMinuteBaseVisitor {
     private String fileName;
@@ -366,6 +367,39 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         storeVar(symbol.getType(), symbol.getId(), pw);
 
         return super.visitSetVariable(ctx);
+    }
+
+    @Override
+    public Object visitVartrans(LastMinuteParser.VartransContext ctx) {
+        //get the variable
+        Types type = fromContext(ctx.varvalue());
+        if (type == Types.INT){
+            pushVar(type, ctx.varvalue().varvalnum().getText(), printWriter);
+            printWriter.println("iadd");
+            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
+            storeVar(type, symbol.getId(), printWriter);
+        }   else if (type == Types.FLOAT){
+            pushVar(type, ctx.varvalue().varvalfloat().getText(), printWriter);
+            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
+            printWriter.println("fadd");
+            storeVar(type, symbol.getId(), printWriter);
+        }   else if (type == Types.STRING){
+            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
+
+            printWriter.println("new java/lang/StringBuilder");
+            printWriter.println("dup");
+            printWriter.println("invokespecial java/lang/StringBuilder/<init>()V");
+            loadVar(type, symbol.getId(), printWriter);
+            printWriter.println("invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            printWriter.println("ldc " + ctx.varvalue().varvalstring().getText());
+            printWriter.println("invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            printWriter.println("invokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;");
+            storeVar(type, symbol.getId(), printWriter);
+
+        }   else if (type == Types.BOOL){
+            System.err.println("bool cant be transformed with +:");
+        }
+        return super.visitVartrans(ctx);
     }
 
     @Override

@@ -98,7 +98,10 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                 if (ctx.params().children.get(i) instanceof LastMinuteParser.IdentifierContext)
                 {
                     // Found one param
-                    func.addParam(new Symbol(paramName, Types.UNASSIGNED));
+                    Symbol symbol = new Symbol(paramName, Types.UNASSIGNED);
+                    func.addParam(symbol);
+                    symbol.incCount();
+
                 }
             }
         }
@@ -175,7 +178,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         return null;
     }
-
     @Override
     public Types visitIdentifier(LastMinuteParser.IdentifierContext ctx)
     {
@@ -220,8 +222,10 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         String varName = ctx.identifier().getText();
         Types type = fromContext(ctx.varvalue());
 
-        if (type != null)
-        {
+        if (type == null){
+            type = Types.FLOAT;
+        }
+
             Symbol theSymbol = currentScope.lookupVariable(varName);
 
             System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
@@ -233,13 +237,12 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             else
             {
                 theSymbol = new Symbol(varName, type);
+                theSymbol.incCount();
             }
 
             currentScope.declareVariable(theSymbol);
             funcTree.put(ctx, theSymbol);
             scopeTree.put(ctx, currentScope);
-        }
-
 
         System.out.println("adding variable to: " + currentScope.getName() + "");
         return null;
@@ -264,20 +267,15 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 //        return super.visitValue(ctx);
 //    }
 
+
+
+
     @Override
-    public Types visitCalcVal(LastMinuteParser.CalcValContext ctx)
-    {
+    public Types visitCalcVal(LastMinuteParser.CalcValContext ctx) {
         if (ctx.identifier() != null){
-            //check if identifier exists & is of type int
-            Symbol test = currentScope.lookupVariable(ctx.identifier().getText());
-            if (test != null) {
-                if (test.getType() == Types.INT || test.getType() == Types.FLOAT) {
-                    System.out.println("identifier \"" + ctx.identifier().getText() + "\" is an " + test.getType() + ", thus valid");
-                } else {
-                    System.err.println("identifier \"" + ctx.identifier().getText() + "\" is not of type int, so calculation can not be executed");
-                }
-            }else {
-                System.out.println("Identifier \"" + ctx.identifier().getText()+  "\" didnt exist, skipping calculation");
+            Types type = currentScope.lookupVariable(ctx.identifier().getText()).getType();
+            if (type != Types.INT && type != Types.FLOAT){
+                System.err.println("wrong type on identifier " + ctx.identifier().getText());
             }
         }
         return super.visitCalcVal(ctx);
@@ -322,6 +320,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         return null;
     }
+
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx)
     {
