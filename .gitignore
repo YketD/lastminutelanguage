@@ -67,3 +67,5 @@ test\.lm
 test\.class
 
 MyApp\.lm
+
+src/Tester\.java
