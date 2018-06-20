@@ -143,13 +143,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
-    public Types visitWhileloop(LastMinuteParser.WhileloopContext ctx)
-    {
-        visit(ctx.conditionalbody());
-        return null;
-    }
-
-    @Override
     public Types visitConditionalbody(LastMinuteParser.ConditionalbodyContext ctx)
     {
         visit(ctx.condition());
@@ -197,6 +190,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     @Override
     public Types visitFunccall(LastMinuteParser.FunccallContext ctx)
     {
+        scopeTree.put(ctx, currentScope);
+
         if (ctx.identifier().getText().equals("print")){
             System.out.println("print function called");
         }else {
@@ -211,7 +206,6 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             System.out.println("succesfully called function: " + func.getName());
 
             funcTree.put(ctx, func);
-            scopeTree.put(ctx, currentScope);
         }
 
 
@@ -230,6 +224,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         {
             Symbol theSymbol = currentScope.lookupVariable(varName);
 
+            System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
+
             if (theSymbol != null)
             {
                 theSymbol.setType(type);
@@ -237,15 +233,16 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             else
             {
                 theSymbol = new Symbol(varName, type);
-                currentScope.declareVariable(theSymbol);
-                System.out.println("[Name : Type] - [" + varName + " : " + type.toString() + "]");
             }
 
+            currentScope.declareVariable(theSymbol);
             funcTree.put(ctx, theSymbol);
             scopeTree.put(ctx, currentScope);
         }
+
+
         System.out.println("adding variable to: " + currentScope.getName() + "");
-        return super.visitSetVariable(ctx);
+        return null;
     }
 
 //    @Override
@@ -284,6 +281,23 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
         }
         return super.visitCalcVal(ctx);
+    }
+
+    @Override
+    public Types visitWhileloop(LastMinuteParser.WhileloopContext ctx)
+    {
+        String scopeName = "whileScope" + scopecount;
+
+        newScope(scopeName, ctx);
+        scopecount++;
+
+        scopeTree.put(ctx, currentScope);
+
+        visit(ctx.conditionalbody().body());
+
+        closeScope(scopeName);
+
+        return null;
     }
 
     @Override

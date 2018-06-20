@@ -106,7 +106,15 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else if (type == Types.CHAR) {
             print("\"" + ctx.extendedparams().varvalue().get(0).varvalchar().getText() + "\"");
         } else if (type == Types.ARRAY) {
-            System.err.println("cant print array");
+            System.err.println("cant print array lol");
+        } else if (type == Types.IDENTIFIER) {
+/*
+            String varName = ctx.extendedparams().varvalue().get(0).identifier().getText();
+            Scope scope = (Scope) scopeTree.get(ctx);
+            Symbol symbol = scope.lookupVariable(varName);
+
+            loadVar(symbol.getType(), symbol.getId(), printWriter);
+            */
         } else {
             print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
         }
@@ -309,8 +317,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             int value = 0;
             try {
                 value = Integer.valueOf(rawValue);
-            } catch (NumberFormatException e) {
-            }
+            } catch (NumberFormatException e) { }
 
             try {
                 if (value >= 0 && value < 128) {
@@ -321,6 +328,22 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     pw.append("\tldc " + value + "\r\n");
                 }
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (symbolType == Types.BOOL)
+        {
+            try {
+                pw.append("\ticonst_" + (rawValue.equals("true") ? 1 : 0) + "\r\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else // float, string
+        {
+            try {
+                pw.append("\tldc " + rawValue + "\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -355,18 +378,38 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             CLOSEPAR
             body
          */
-
-
-        Scope forScope = (Scope) scopeTree.get(ctx);
-        printWriter.println("\t" + forScope.getName() + ":");
+        Scope scope = (Scope) scopeTree.get(ctx);
 
         visit(ctx.vardecl());
 
+        printWriter.println("\t" + scope.getName() + ":");
+
         visit(ctx.condition());
+        printWriter.println(scope.getName() + "_end");
+
+        visit(ctx.body());
 
         visit(ctx.varcalc());
 
-        visit(ctx.body());
+        printWriter.println("\tgoto " + scope.getName());
+        printWriter.println("\t" + scope.getName() + "_end:");
+
+        return null;
+    }
+
+    @Override
+    public Object visitWhileloop(LastMinuteParser.WhileloopContext ctx)
+    {
+        Scope scope = (Scope) scopeTree.get(ctx);
+
+        printWriter.println("\t" + scope.getName() + ":");
+
+        visit(ctx.conditionalbody().condition());
+        printWriter.println(scope.getName() + "_end");
+        visit(ctx.conditionalbody().body());
+
+        printWriter.println("\tgoto " + scope.getName());
+        printWriter.println("\t" + scope.getName() + "_end:");
 
         return null;
     }
@@ -375,6 +418,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         Types type;
         if (ctx.varvalarray() != null)
             type = (Types.ARRAY);
+        else if (ctx.identifier() != null)
+            type = (Types.IDENTIFIER);
         else if (ctx.varvalbool() != null)
             type = (Types.BOOL);
         else if (ctx.varvalchar() != null)
@@ -396,5 +441,87 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     //visitFuncCall
 
+/*
+        condition
+        :   NOT condition                           #InverseCondition
+        |   varvalue EQUALS varvalue                #CompareCondition
+        |   varvalue NOTEQUAL varvalue            #NotEqualCondition
+        |   condition AND condition                 #AndCondition
+        |   condition OR condition                  #OrCondition
+        |   varvalbool                              #BoolCondition
+        |   varvalue operator varvalue            #OperatorCondition
+        ;
+ */
+
+    @Override
+    public Object visitOperatorCondition(LastMinuteParser.OperatorConditionContext ctx)
+    {
+        System.out.println("entered visitOperatorCondition");
+
+        pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
+        pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+
+        if (ctx.operator().getText().equals("<="))
+            printWriter.print("\tif_icmpgt ");
+
+        else if (ctx.operator().getText().equals(">="))
+            printWriter.print("\tif_icmplt ");
+
+        else if (ctx.operator().getText().equals("<"))
+            printWriter.print("\tif_icmpge ");
+
+        else if (ctx.operator().getText().equals(">"))
+            printWriter.print("\tif_icmple ");
+
+        return null;
+    }
+
+    @Override
+    public Object visitBoolCondition(LastMinuteParser.BoolConditionContext ctx)
+    {
+        System.out.println("entered visitBoolCondition");
+
+        if (ctx.varvalbool().getText().equals("!=")) {
+            printWriter.print("\tif_icmpeq ");
+        } else {
+            printWriter.print("\tif_icmpne ");
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitInverseCondition(LastMinuteParser.InverseConditionContext ctx)
+    {
+        System.out.println("TODO visitInverseCondition");
+        return super.visitInverseCondition(ctx);
+    }
+
+    @Override
+    public Object visitNotEqualCondition(LastMinuteParser.NotEqualConditionContext ctx)
+    {
+        System.out.println("TODO visitNotEqualCondition");
+        return super.visitNotEqualCondition(ctx);
+    }
+
+    @Override
+    public Object visitAndCondition(LastMinuteParser.AndConditionContext ctx)
+    {
+        System.out.println("TODO visitAndCondition");
+        return super.visitAndCondition(ctx);
+    }
+
+    @Override
+    public Object visitOrCondition(LastMinuteParser.OrConditionContext ctx)
+    {
+        System.out.println("TODO visitOrCondition");
+        return super.visitOrCondition(ctx);
+    }
+
+    @Override
+    public Object visitCompareCondition(LastMinuteParser.CompareConditionContext ctx)
+    {
+        System.out.println("TODO visitCompareCondition");
+        return super.visitCompareCondition(ctx);
+    }
 
 }

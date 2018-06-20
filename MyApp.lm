@@ -1,11 +1,9 @@
 doAThing()
 {
-    a: 1;
-    a: 2;
-    a: 3;
+    a: true;
 
-    for(i: 1; i < 2; i++;)
+    while (1 < 2)
     {
-        b: 2;
+        a: 2;
     }
 }
