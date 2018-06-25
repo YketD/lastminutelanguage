@@ -436,19 +436,43 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         Scope scope = (Scope) scopeTree.get(ctx);
+        String quitScope = scope.getName() + "_end";
 
         visit(ctx.conditionalbody().condition());
-        printWriter.println(scope.getName() + "_end");
+
+        if (ctx.if_else() != null && scope.getChildScopes().size() > 0)
+            printWriter.println(scope.getChildScopes().get(0).getName());
+        else
+            printWriter.println(quitScope);
+
         visit(ctx.conditionalbody().body());
 
-        //printWriter.println("\tgoto " + scope.getName() + "_end");
+//        printWriter.println("\tgoto " + scope.getName() + "_end");
 
-        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
-            visitChildren((RuleNode) ctx.if_else());
+        if (ctx.if_else() != null)
+        {
+            for (int i = 0; i < ctx.if_else().size(); i++)
+            {
+                printWriter.println("\t" + scope.getChildScopes().get(i).getName() + ":");
+                visit(ctx.if_else(i).conditionalbody().condition());
+
+                if (i < ctx.if_else().size()-1)
+                    printWriter.println(scope.getChildScopes().get(i + 1).getName());
+                else
+                    printWriter.println(quitScope);
+
+                visit(ctx.if_else(i).conditionalbody().body());
+            }
+        }
 
         if (ctx.body() != null)
+        {
+//            String lastScope = scope.getName();
+//            printWriter.println("\t" + lastScope + ":");
+//
             visit(ctx.body());
-
+        }
+//
         printWriter.println("\t" + scope.getName() + "_end:");
 
         return null;

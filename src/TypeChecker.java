@@ -1,7 +1,6 @@
 import Model.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
-import org.antlr.v4.runtime.tree.RuleNode;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.LinkedHashMap;
@@ -11,6 +10,7 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
+    private int ifcount = 0;
     private int scopecount = 1;
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree, expressionTree;
@@ -165,21 +165,53 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         String scopeName = "scope_" + scopecount++;
-        newScope(scopeName, ctx);
+        ifcount++;
+
+        // =========== First if
+        Scope parent = (ifcount == 1 ? currentScope : currentScope.getParentScope());
+        Scope childScope = new Scope(scopeName, currentScope);
+        currentScope = childScope;
+        parent.addChild(childScope);
+        scopeTree.put(ctx, parent);
 
         visit(ctx.conditionalbody());
 
-        scopeTree.put(ctx, currentScope);
+        // =========== Middle ifs
+        if (ctx.if_else() != null)
+        {
+            for (int i = 0; i < ctx.if_else().size(); i++)
+            {
+                visit(ctx.if_else(i));
+            }
+        }
 
-        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
-            visitChildren((RuleNode) ctx.if_else());
-
+        // =========== Else
         if (ctx.body() != null)
+        {
+            ifcount++;
+
+
+
             visit(ctx.body());
 
-        closeScope(scopeName);
+            ifcount--;
+        }
+
+        // =========== End
+        if (ifcount == 1)
+        {
+            ifcount = 0;
+        }
+        else
+        {
+            ifcount--;
+        }
+
+        closeScope(parent.getName());
+
         return null;
     }
+
     @Override
     public Types visitIdentifier(LastMinuteParser.IdentifierContext ctx)
     {

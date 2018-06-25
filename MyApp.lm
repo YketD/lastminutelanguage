@@ -1,6 +1,8 @@
 doAThing()
 {
-
+  a: 1;
+  if (10 < 2) { a: 2; }
+  else if (5 < 8) { a: 3; }
 }
 
 doAThing();
