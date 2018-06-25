@@ -446,8 +446,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printWriter.println(quitScope);
 
         visit(ctx.conditionalbody().body());
-
-//        printWriter.println("\tgoto " + scope.getName() + "_end");
+        printWriter.println("\tgoto " + quitScope);
 
         if (ctx.if_else() != null)
         {
@@ -462,17 +461,22 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     printWriter.println(quitScope);
 
                 visit(ctx.if_else(i).conditionalbody().body());
+
+                printWriter.println("\tgoto " + quitScope);
             }
         }
 
         if (ctx.body() != null)
         {
+            System.out.println("ELSE BODY");
 //            String lastScope = scope.getName();
 //            printWriter.println("\t" + lastScope + ":");
-//
-            visit(ctx.body());
+
+            //visit(ctx.body());
         }
-//
+
+
+
         printWriter.println("\t" + scope.getName() + "_end:");
 
         return null;

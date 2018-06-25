@@ -26,17 +26,19 @@
 	.limit locals 100
 	bipush 1
 	istore 1
-	bipush 0
+	bipush 10
 	bipush 2
 	if_icmpge scope_1
 	bipush 2
 	istore 1
+	goto doAThing_end
 	scope_1:
-	bipush 0
+	bipush 5
 	bipush 8
 	if_icmpge doAThing_end
 	bipush 3
 	istore 1
+	goto doAThing_end
 	doAThing_end:
 	return
 .end method
