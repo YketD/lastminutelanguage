@@ -13,9 +13,11 @@ public class Tester
 
     public void run()
     {
-        int randomNum = ThreadLocalRandom.current().nextInt(0, 100 + 1);
+        //int randomNum = ThreadLocalRandom.current().nextInt(0, 100 + 1);
 
-        int res = (1+7*randomNum+3+2*2+1);
-        System.out.println(res);
+        int num = 5;
+        int sum = num + num / num + num * 1;
+
+        System.out.println(sum);
     }
 }

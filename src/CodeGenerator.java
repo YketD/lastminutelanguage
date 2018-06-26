@@ -438,47 +438,52 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         Scope scope = (Scope) scopeTree.get(ctx);
         String quitScope = scope.getName() + "_end";
 
-        visit(ctx.conditionalbody().condition());
+        /*
+        print \t name if scope:
+        visit if condition
+        print endif_end or next elseif
+        visit if body
+        print \t goto endif_end
 
-        if (ctx.if_else() != null && scope.getChildScopes().size() > 0)
-            printWriter.println(scope.getChildScopes().get(0).getName());
-        else
-            printWriter.println(quitScope);
+        print \t endif_end:
+        */
 
-        visit(ctx.conditionalbody().body());
-        printWriter.println("\tgoto " + quitScope);
+        // min 1 for the last else
+        boolean hasElse = (ctx.lastif != null);
 
-        if (ctx.if_else() != null)
+        System.out.println("IF " + ctx.conditionalbody().size() + " SCOPES " +
+                scope.getChildScopes().size() + " HAS ELSE " + hasElse);
+
+        for (int i = 0; i < ctx.conditionalbody().size(); i++)
         {
-            for (int i = 0; i < ctx.if_else().size(); i++)
-            {
-                printWriter.println("\t" + scope.getChildScopes().get(i).getName() + ":");
-                visit(ctx.if_else(i).conditionalbody().condition());
+            printWriter.println("\t" + scope.getChildScopes().get(i).getName() + ":");
 
-                if (i < ctx.if_else().size()-1)
+            visit(ctx.conditionalbody(i).condition());
+
+            if (i == (ctx.conditionalbody().size() - 1))
+            {
+                if (hasElse)
                     printWriter.println(scope.getChildScopes().get(i + 1).getName());
                 else
                     printWriter.println(quitScope);
-
-                visit(ctx.if_else(i).conditionalbody().body());
-
-                printWriter.println("\tgoto " + quitScope);
             }
+            else
+            {
+                printWriter.println(scope.getChildScopes().get(i + 1).getName());
+            }
+
+            visit(ctx.conditionalbody(i).body());
+
+            printWriter.println("\tgoto " + quitScope);
         }
 
-        if (ctx.body() != null)
+        if (hasElse)
         {
-            System.out.println("ELSE BODY");
-//            String lastScope = scope.getName();
-//            printWriter.println("\t" + lastScope + ":");
-
-            //visit(ctx.body());
+            printWriter.println("\t" + scope.getChildScopes().get(scope.getChildScopes().size()-1).getName() + ":");
+            visit(ctx.lastif);
         }
 
-
-
-        printWriter.println("\t" + scope.getName() + "_end:");
-
+        printWriter.println("\t" + quitScope + ":");
         return null;
     }
 

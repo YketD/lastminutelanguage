@@ -26,20 +26,61 @@
 	.limit locals 100
 	bipush 1
 	istore 1
+	scope_2:
 	bipush 10
 	bipush 2
-	if_icmpge scope_1
+	if_icmpge scope_4
 	bipush 2
 	istore 1
-	goto doAThing_end
-	scope_1:
-	bipush 5
+	goto scope_1_end
+	scope_4:
+	bipush 11
 	bipush 8
-	if_icmpge doAThing_end
+	if_icmpge scope_14
+	scope_7:
+	bipush 11
+	bipush 8
+	if_icmpge scope_9
 	bipush 3
 	istore 1
-	goto doAThing_end
-	doAThing_end:
+	goto scope_6_end
+	scope_9:
+	sipush 555
+	bipush 10
+	if_icmpge scope_11
+	bipush 3
+	istore 1
+	goto scope_6_end
+	scope_11:
+	sipush 888
+	bipush 10
+	if_icmpge scope_13
+	bipush 3
+	istore 1
+	goto scope_6_end
+	scope_13:
+	bipush 4
+	istore 1
+	scope_6_end:
+	goto scope_1_end
+	scope_14:
+	sipush 555
+	bipush 10
+	if_icmpge scope_16
+	bipush 4
+	istore 1
+	goto scope_1_end
+	scope_16:
+	sipush 888
+	bipush 10
+	if_icmpge scope_18
+	bipush 3
+	istore 1
+	goto scope_1_end
+	scope_18:
+	bipush 4
+	istore 1
+	scope_1_end:
 	return
 .end method
 

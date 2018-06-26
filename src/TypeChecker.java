@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
  */
 public class TypeChecker extends LastMinuteBaseVisitor<Types>
 {
-    private int ifcount = 0;
     private int scopecount = 1;
     private LinkedHashMap<String, Function> funcmap = new LinkedHashMap<>();
     private ParseTreeProperty scopeTree, funcTree, expressionTree;
@@ -165,50 +164,38 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         String scopeName = "scope_" + scopecount++;
-        ifcount++;
-
-        // =========== First if
-        Scope parent = (ifcount == 1 ? currentScope : currentScope.getParentScope());
         Scope childScope = new Scope(scopeName, currentScope);
+        currentScope.addChild(childScope);
         currentScope = childScope;
-        parent.addChild(childScope);
-        scopeTree.put(ctx, parent);
+        scopeTree.put(ctx, currentScope);
 
-        visit(ctx.conditionalbody());
-
-        // =========== Middle ifs
-        if (ctx.if_else() != null)
+        // =========== If and elseifs
+        for (int i = 0; i < ctx.conditionalbody().size(); i++)
         {
-            for (int i = 0; i < ctx.if_else().size(); i++)
-            {
-                visit(ctx.if_else(i));
-            }
+            String scopeName2 = "scope_" + scopecount++;
+            Scope childScope2 = new Scope(scopeName2, currentScope);
+            currentScope.addChild(childScope2);
+            currentScope = childScope2;
+
+            visit(ctx.conditionalbody().get(i));
+
+            closeScope(childScope2.getName());
         }
 
         // =========== Else
-        if (ctx.body() != null)
+        if (ctx.lastif != null)
         {
-            ifcount++;
+            String scopeName2 = "scope_" + scopecount++;
+            Scope childScope2 = new Scope(scopeName2, currentScope);
+            currentScope.addChild(childScope2);
+            currentScope = childScope2;
 
+            visit(ctx.lastif);
 
-
-            visit(ctx.body());
-
-            ifcount--;
+            closeScope(childScope2.getName());
         }
 
-        // =========== End
-        if (ifcount == 1)
-        {
-            ifcount = 0;
-        }
-        else
-        {
-            ifcount--;
-        }
-
-        closeScope(parent.getName());
-
+        closeScope(childScope.getName());
         return null;
     }
 
@@ -279,7 +266,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             scopeTree.put(ctx, currentScope);
 
         System.out.println("adding variable to: " + currentScope.getName() + "");
-        return null;
+        return super.visitSetVariable(ctx);
     }
 
 //    @Override
