@@ -1,6 +1,16 @@
 doAThing()
 {
-
+  a: 1;
+  if (10 < 2) { a: 2; }
+  else if (11 < 8) {
+    if (11 < 8) { a: 3; }
+    else if (555 < 10) { a: 3; }
+    else if (888 < 10) { a: 3; }
+	else { a: 4; }
+  }
+  else if (555 < 10) { a: 4; }
+  else if (888 < 10) { a: 3; }
+  else { a: 4; }
 }
 
 doAThing();

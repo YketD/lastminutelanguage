@@ -12,7 +12,7 @@ public class Scope
     private String name;
     private LinkedHashMap<String, Symbol> variables;
     private LinkedHashMap<String, Function> functions;
-    private LinkedHashMap<String, Scope> childScopes;
+    private LinkedHashMap<Integer, Scope> childScopes;
     private Scope parentScope;
 
     public Scope(String scopeName, Scope parentScope)
@@ -44,7 +44,12 @@ public class Scope
 
     public void addChild(Scope scope)
     {
-        this.childScopes.put(scope.getName(), scope);
+        this.childScopes.put(this.childScopes.size(), scope);
+    }
+
+    public LinkedHashMap<Integer, Scope> getChildScopes()
+    {
+        return childScopes;
     }
 
     public Scope getParentScope()

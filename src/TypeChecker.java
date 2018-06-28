@@ -1,7 +1,6 @@
 import Model.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
-import org.antlr.v4.runtime.tree.RuleNode;
 
 import javax.management.openmbean.KeyAlreadyExistsException;
 import java.util.LinkedHashMap;
@@ -172,21 +171,41 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         String scopeName = "scope_" + scopecount++;
-        newScope(scopeName, ctx);
-
-        visit(ctx.conditionalbody());
-
+        Scope childScope = new Scope(scopeName, currentScope);
+        currentScope.addChild(childScope);
+        currentScope = childScope;
         scopeTree.put(ctx, currentScope);
 
-        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
-            visitChildren((RuleNode) ctx.if_else());
+        // =========== If and elseifs
+        for (int i = 0; i < ctx.conditionalbody().size(); i++)
+        {
+            String scopeName2 = "scope_" + scopecount++;
+            Scope childScope2 = new Scope(scopeName2, currentScope);
+            currentScope.addChild(childScope2);
+            currentScope = childScope2;
 
-        if (ctx.body() != null)
-            visit(ctx.body());
+            visit(ctx.conditionalbody().get(i));
 
-        closeScope(scopeName);
+            closeScope(childScope2.getName());
+        }
+
+        // =========== Else
+        if (ctx.lastif != null)
+        {
+            String scopeName2 = "scope_" + scopecount++;
+            Scope childScope2 = new Scope(scopeName2, currentScope);
+            currentScope.addChild(childScope2);
+            currentScope = childScope2;
+
+            visit(ctx.lastif);
+
+            closeScope(childScope2.getName());
+        }
+
+        closeScope(childScope.getName());
         return null;
     }
+
     @Override
     public Types visitIdentifier(LastMinuteParser.IdentifierContext ctx)
     {

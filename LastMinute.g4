@@ -149,10 +149,9 @@ funcdecl
         ;
 
         if_else
-        :   IF
-            conditionalbody
-            ((ELSE if_else)*
-             (ELSE body)?)
+        :   IF firstif=conditionalbody
+            (ELSE IF conditionalbody)*
+            (ELSE lastif=body)?
         ;
 
         loop

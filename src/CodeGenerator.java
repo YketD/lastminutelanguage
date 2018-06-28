@@ -653,21 +653,54 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     @Override
     public Object visitIf_else(LastMinuteParser.If_elseContext ctx) {
         Scope scope = (Scope) scopeTree.get(ctx);
+        String quitScope = scope.getName() + "_end";
 
-        visit(ctx.conditionalbody().condition());
-        printWriter.println(scope.getName() + "_end");
-        visit(ctx.conditionalbody().body());
+        /*
+        print \t name if scope:
+        visit if condition
+        print endif_end or next elseif
+        visit if body
+        print \t goto endif_end
 
-        //printWriter.println("\tgoto " + scope.getName() + "_end");
+        print \t endif_end:
+        */
 
-        if (ctx.if_else() != null && !ctx.if_else().isEmpty())
-            visitChildren((RuleNode) ctx.if_else());
+        // min 1 for the last else
+        boolean hasElse = (ctx.lastif != null);
 
-        if (ctx.body() != null)
-            visit(ctx.body());
+        System.out.println("IF " + ctx.conditionalbody().size() + " SCOPES " +
+                scope.getChildScopes().size() + " HAS ELSE " + hasElse);
 
-        printWriter.println("\t" + scope.getName() + "_end:");
+        for (int i = 0; i < ctx.conditionalbody().size(); i++)
+        {
+            printWriter.println("\t" + scope.getChildScopes().get(i).getName() + ":");
 
+            visit(ctx.conditionalbody(i).condition());
+
+            if (i == (ctx.conditionalbody().size() - 1))
+            {
+                if (hasElse)
+                    printWriter.println(scope.getChildScopes().get(i + 1).getName());
+                else
+                    printWriter.println(quitScope);
+            }
+            else
+            {
+                printWriter.println(scope.getChildScopes().get(i + 1).getName());
+            }
+
+            visit(ctx.conditionalbody(i).body());
+
+            printWriter.println("\tgoto " + quitScope);
+        }
+
+        if (hasElse)
+        {
+            printWriter.println("\t" + scope.getChildScopes().get(scope.getChildScopes().size()-1).getName() + ":");
+            visit(ctx.lastif);
+        }
+
+        printWriter.println("\t" + quitScope + ":");
         return null;
     }
 
