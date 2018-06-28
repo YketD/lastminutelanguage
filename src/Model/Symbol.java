@@ -11,7 +11,7 @@ public class Symbol
             case FLOAT:
                 return "F";
             case INT:
-                return "I";
+                return "F";
             case BOOL:
                 return "Z";
             case FUNCTION:
