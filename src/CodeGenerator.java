@@ -244,7 +244,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     if (expressions.get(i) == '+') {
                         if ((addcount > 0 || subcount > 0))
                             printWriter.println("fadd");
-                       if (!expressions.contains('*') && !expressions.contains('/'))
+                        if (!expressions.contains('*') && !expressions.contains('/'))
                             printWriter.println("fadd");
                         else
                             addcount++;
@@ -262,7 +262,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 }
             }
         }
-        if (subcount > 0){
+        if (subcount > 0) {
             printWriter.println("fsub");
         }
         if (addcount > 0)
@@ -680,21 +680,17 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         System.out.println("IF " + ctx.conditionalbody().size() + " SCOPES " +
                 scope.getChildScopes().size() + " HAS ELSE " + hasElse);
 
-        for (int i = 0; i < ctx.conditionalbody().size(); i++)
-        {
+        for (int i = 0; i < ctx.conditionalbody().size(); i++) {
             printWriter.println("\t" + scope.getChildScopes().get(i).getName() + ":");
 
             visit(ctx.conditionalbody(i).condition());
 
-            if (i == (ctx.conditionalbody().size() - 1))
-            {
+            if (i == (ctx.conditionalbody().size() - 1)) {
                 if (hasElse)
                     printWriter.println(scope.getChildScopes().get(i + 1).getName());
                 else
                     printWriter.println(quitScope);
-            }
-            else
-            {
+            } else {
                 printWriter.println(scope.getChildScopes().get(i + 1).getName());
             }
 
@@ -703,9 +699,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printWriter.println("\tgoto " + quitScope);
         }
 
-        if (hasElse)
-        {
-            printWriter.println("\t" + scope.getChildScopes().get(scope.getChildScopes().size()-1).getName() + ":");
+        if (hasElse) {
+            printWriter.println("\t" + scope.getChildScopes().get(scope.getChildScopes().size() - 1).getName() + ":");
             visit(ctx.lastif);
         }
 

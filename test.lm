@@ -29,6 +29,7 @@
 	scope_2:
 	bipush 10
 	bipush 2
+<<<<<<< Updated upstream
 	if_icmple scope_1_end
 	ldc 2
 	ldc 2
@@ -44,6 +45,15 @@ fadd
 	ldc 2
 fadd
 	fstore 1
+=======
+	if_icmpge scope_1_end
+	ldc 2
+	ldc 2
+fadd
+	fstore 1
+	goto scope_1_end
+	scope_1_end:
+>>>>>>> Stashed changes
 	return
 .end method
 
