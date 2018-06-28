@@ -69,6 +69,13 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
+    public Types visitCalcMore(LastMinuteParser.CalcMoreContext ctx) {
+        scopeTree.put( ctx, currentScope);
+        System.out.println("test to see it goes through in time");
+        return super.visitCalcMore(ctx);
+    }
+
+    @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
         // Get function name
@@ -247,7 +254,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             scopeTree.put(ctx, currentScope);
 
         System.out.println("adding variable to: " + currentScope.getName() + "");
-        return null;
+        return super.visitSetVariable(ctx);
     }
 
 //    @Override

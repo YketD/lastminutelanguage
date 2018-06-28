@@ -2,14 +2,17 @@ import Model.Function;
 import Model.Scope;
 import Model.Symbol;
 import Model.Types;
+import org.antlr.runtime.misc.DoubleKeyMap;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.RuleNode;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public class CodeGenerator extends LastMinuteBaseVisitor {
     private String fileName;
@@ -17,6 +20,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private ParseTreeProperty scopeTree, funcTree;
     private StringBuilder functions;
     private String className;
+    private boolean floatcalc = false;
+    private ArrayList<String> values = new ArrayList<>();
+    private ArrayList<Character> expressions = new ArrayList<>();
+    private int subcount = 0, addcount = 0;
 
     private boolean global = true;
 
@@ -86,7 +93,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             String title = ctx.identifier().getText();
             Function func = (Function) funcTree.get(ctx);
             functions.append("\taload_0\n");
-            functions.append("\tinvokevirtual " + className + "/" + title + "()" +  Symbol.getMnenonic(func.getReturnType()) + "\n");
+            functions.append("\tinvokevirtual " + className + "/" + title + "()" + Symbol.getMnenonic(func.getReturnType()) + "\n");
 
         }
         return super.visitFunccall(ctx);
@@ -110,68 +117,270 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else if (type == Types.ARRAY) {
             System.err.println("cant print array lol");
         } else if (type == Types.IDENTIFIER) {
-/*
             String varName = ctx.extendedparams().varvalue().get(0).identifier().getText();
             Scope scope = (Scope) scopeTree.get(ctx);
             Symbol symbol = scope.lookupVariable(varName);
+            System.out.println(symbol.getId() + symbol.getType().toString());
 
-            loadVar(symbol.getType(), symbol.getId(), printWriter);
-            */
+//            loadVar(symbol.getType(), symbol.getId(), printWriter);
+
+            print(symbol, printWriter);
         } else {
-            print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
+//            print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
         }
     }
 
-    private String getVariable(String identifier) {
-        return ("TODO: get the variable (value) in the getVariable() function");
+    public Symbol getVariable(Scope scope, String identifier) {
+        return scope.lookupVariable(identifier);
     }
 
     @Override
     public Object visitCalculation(LastMinuteParser.CalculationContext ctx) {
-        if (ctx.calcVal() != null)
-        pushcalcval(ctx.calcVal());
+        addvalue(ctx.calcVal());
+        if (ctx.calcMore() != null) {
+            visit(ctx.calcMore(0));
+        }
+        //        if (ctx.calcVal() != null)
+//        pushcalcval(ctx.calcVal());
+//
+//        if (ctx.calcMore() != null)
+//            visitCalcMore(ctx.calcMore().get(0));
+        return null;
+    }
 
-        if (ctx.calcMore() != null)
-            visitCalcMore(ctx.calcMore().get(0));
-        return super.visitCalculation(ctx);
+
+    private void addvalue(LastMinuteParser.CalcValContext ctx) {
+        if (ctx.varvalnum() != null) {
+            values.add(ctx.varvalnum().INT().getText());
+        } else if (ctx.varvalfloat() != null) {
+            String doublestring =
+                    ctx.varvalfloat().INT(0).getText() +
+                            "." +
+                            ctx.varvalfloat().INT(1).getText();
+            values.add(doublestring);
+        } else if (ctx.identifier() != null) {
+            values.add(ctx.identifier().getText());
+        }
     }
 
     @Override
     public Object visitCalcMore(LastMinuteParser.CalcMoreContext ctx) {
-        if (ctx.PLUS() != null){
-            pushcalcval(ctx.calcVal());
-            printWriter.println("iadd");
+        if (ctx.PLUS() != null) {
+            expressions.add('+');
+        } else if (ctx.MINUS() != null) {
+            expressions.add('-');
+        } else if (ctx.TIMES() != null) {
+            expressions.add('*');
+        } else if (ctx.DIVIDE() != null) {
+            expressions.add('/');
         }
-        if (ctx.MINUS() != null){
-            pushcalcval(ctx.calcVal());
-            printWriter.println("isub");
+        if (ctx.calculation() != null) {
+            visit(ctx.calculation());
+        } else {
+            addvalue(ctx.calcVal());
+            Scope scope = (Scope) scopeTree.get(ctx);
+            docalc(scope);
         }
-        if (ctx.TIMES() != null){
-            pushcalcval(ctx.calcVal());
-            printWriter.println("imult");
-        }
-        if (ctx.DIVIDE() != null){
-            pushcalcval(ctx.calcVal());
-            printWriter.println("idiv");
-        }
-        if (ctx.MODULO() != null){
-            pushcalcval(ctx.calcVal());
-            printWriter.println("imod");
-        }
-        return super.visitCalcMore(ctx);
+        return null;
     }
 
-    private void pushcalcval(LastMinuteParser.CalcValContext ctx){
-        if (ctx.varvalnum()!=null){
+    private void calculation() {
+
+    }
+
+    private void docalc(Scope scope) {
+        int expressionslength = expressions.size();
+        boolean loadfirst = true;
+        for (int i = 0; i < expressionslength; i++) {
+            if (loadfirst) {
+                if (!NumberUtils.isNumber(values.get(i)))
+                    loadVar(
+                            scope.lookupVariable(values.get(i)).getType(),
+                            scope.lookupVariable(values.get(i)).getId(),
+                            printWriter);
+                else
+                    pushVar(
+                            Types.FLOAT,
+                            values.get(i),
+                            printWriter);
+                values.remove(i);
+                i--;
+                expressionslength = expressions.size();
+                loadfirst = false;
+
+            } else {
+                if ((expressions.get(i) == '*' || expressions.get(i) == '/')) {
+                    if (!NumberUtils.isNumber(values.get(i)))
+                        loadVar(
+                                scope.lookupVariable(values.get(i)).getType(),
+                                scope.lookupVariable(values.get(i)).getId(),
+                                printWriter);
+                    else
+                        pushVar(
+                                Types.FLOAT,
+                                values.get(i),
+                                printWriter);
+                    values.remove(i);
+                    if (expressions.get(i) == '*')
+                        printWriter.println("fmul");
+                    else
+                        printWriter.println("fdiv");
+                    expressions.remove(i);
+                    i--;
+                    expressionslength = expressions.size();
+
+                } else {
+                    if (!NumberUtils.isNumber(values.get(i)))
+                        loadVar(
+                                scope.lookupVariable(values.get(i)).getType(),
+                                scope.lookupVariable(values.get(i)).getId(),
+                                printWriter);
+                    else
+                        pushVar(
+                                Types.FLOAT,
+                                values.get(i),
+                                printWriter);
+                    values.remove(i);
+                    if (expressions.get(i) == '+') {
+                        if ((addcount > 0 || subcount > 0))
+                            printWriter.println("fadd");
+                       if (!expressions.contains('*') && !expressions.contains('/'))
+                            printWriter.println("fadd");
+                        else
+                            addcount++;
+                    } else {
+                        if ((addcount > 0 || subcount > 0))
+                            printWriter.println("fsub");
+                        if (!expressions.contains('*') && !expressions.contains('/'))
+                            printWriter.println("fsub");
+                        else
+                            subcount++;
+                    }
+                    expressions.remove(i);
+                    i--;
+                    expressionslength = expressions.size();
+                }
+            }
+        }
+        if (subcount > 0){
+            printWriter.println("fsub");
+        }
+        if (addcount > 0)
+            printWriter.println("fadd");
+    }
+//                Symbol var;
+//                if (!NumberUtils.isNumber(values.get(i)) || !NumberUtils.isNumber(values.get(i + 1))) {
+//                    if (!NumberUtils.isNumber(values.get(i))) {
+//                        var = getVariable(scope, values.get(i));
+//                        loadVar(var.getType(), var.getId(), printWriter);
+//                    } else {
+//                        printWriter.println("ldc " + Double.parseDouble(values.get(i + 1)));
+//                    }
+//                    if (!NumberUtils.isNumber(values.get(i + 1))) {
+//                        var = getVariable(scope, values.get(i));
+//                        loadVar(var.getType(), var.getId(), printWriter);
+//                    } else {
+//                        printWriter.println("ldc " + Double.parseDouble(values.get(i + 1)));
+//                    }
+//                    printWriter.println("fmul");
+//                }
+//            } else{
+//                values.set(i, Double.toString(Double.parseDouble(values.get(i)) * Double.parseDouble(values.get(i + 1))));
+//                values.remove(i + 1);
+//
+//                expressionslength--;
+//                expressions.remove(i);
+//                i--;
+//            }
+////                }else{
+////                    values.set(i, values.get(i) / values.get(i + 1));
+////                    values.remove(i + 1);
+////
+////                    expressionslength--;
+////                    expressions.remove(i);
+////                    i--;
+////                }
+//        }
+//    }
+//
+//    expressionslength =expressions.size();
+//        for(
+//    int i = 0;
+//    i<expressionslength;i++)
+//
+//    {
+//        if (expressions.get(i) == '-' || expressions.get(i) == '+') {
+//            System.out.println("then do :" + values.get(i) + " " + expressions.get(i) + " " + values.get(i + 1));
+//            if (expressions.get(i) == '+') {
+//                values.set(i, values.get(i) + values.get(i + 1));
+//                values.remove(i + 1);
+//
+//                expressionslength--;
+//                expressions.remove(i);
+//                i--;
+//            } else {
+////                    values.set(i, values.get(i) - values.get(i + 1));
+//                values.remove(i + 1);
+//
+//                expressionslength--;
+//                expressions.remove(i);
+//                i--;
+//            }
+//        }
+//    }
+//        System.out.println("result of calc:"+values.get(0));
+//}
+    //    @Override
+//    public Object visitCalcMore(LastMinuteParser.CalcMoreContext ctx) {
+//        if (ctx.calculation() == null){
+//            pushcalcval(ctx.calcVal());
+//        }
+//        if (ctx.calculation() != null){
+//            visit(ctx.calculation());
+//        }
+//        if (ctx.PLUS() != null){
+//            if (floatcalc) {
+//                printWriter.println("swap");
+//                printWriter.println("i2f");
+//                printWriter.println("fadd");
+//            }   else {
+//                printWriter.println("iadd");
+//            }
+//        }
+//        if (ctx.MINUS() != null){
+//            if (floatcalc) {
+//                printWriter.println("swap");
+//                printWriter.println("i2f");
+//                printWriter.println("fadd");
+//            } else {
+//                printWriter.println("fsub");
+//            }
+//        }
+//         if (ctx.TIMES() != null){
+//            printWriter.println("imult");
+//        }
+//        if (ctx.DIVIDE() != null){
+//            printWriter.println("idiv");
+//        }
+//        if (ctx.MODULO() != null){
+//            printWriter.println("imod");
+//        }
+//        return null;
+//    }
+
+    private void pushcalcval(LastMinuteParser.CalcValContext ctx) {
+
+
+        if (ctx.varvalnum() != null) {
             printWriter.println("bipush " + ctx.varvalnum().INT().getText());
-        }   else if (ctx.varvalfloat()!=null){
-            printWriter.println("ldc " + ctx.varvalfloat().INT(0).getText() + "." +  ctx.varvalfloat().INT(1).getText());
-        }   else if (ctx.identifier()!= null){
-            print(getVariable(ctx.identifier().getText()));
+        } else if (ctx.varvalfloat() != null) {
+            printWriter.println("ldc " + ctx.varvalfloat().INT(0).getText() + "." + ctx.varvalfloat().INT(1).getText());
+        } else if (ctx.identifier() != null) {
+//            print(getVariable(ctx.identifier().getText()));
         }
     }
 
-    private void calculate(String operator){
+    private void calculate(String operator) {
         //print out the operator
     }
 
@@ -183,7 +392,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 //
 //        }if (ctx.identifier() != null){
 //
-//        }if (ctx.)
+//        }if (ctx)
 //        return super.visitCalcVal(ctx);
 //    }
 
@@ -204,8 +413,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.println("\t.limit stack 100\r\n" +
                 "\t.limit locals 100");
 
-        for (LastMinuteParser.FuncbodyContext body : ctx.funcbody())
-        {
+        for (LastMinuteParser.FuncbodyContext body : ctx.funcbody()) {
             visit(body);
             /*
             if (body.funccall() != null)
@@ -235,12 +443,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         return null;
     }
 
-    private void createReturn(Types symbolType, Appendable pw)
-    {
-        try
-        {
-            switch (symbolType)
-            {
+    private void createReturn(Types symbolType, Appendable pw) {
+        try {
+            switch (symbolType) {
                 case BOOL:
                 case INT:
                     pw.append("\tireturn\r\n");
@@ -255,14 +460,12 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     pw.append("\treturn\r\n");
                     break;
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void print (String print){
+    public void print(String print) {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             functions.append("\tldc " + print + "\n");
@@ -271,6 +474,18 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
             printWriter.println("\tldc " + print);
             printWriter.println("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V ");
+        }
+    }
+
+    public void print(Symbol symbol, PrintWriter pw) {
+        if (global) {
+            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            loadVar(symbol.getType(), symbol.getId(), pw);
+            functions.append("\t    invokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+        } else {
+            printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
+            loadVar(symbol.getType(), symbol.getId(), pw);
+            printWriter.println("\t    invokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         }
     }
 
@@ -319,7 +534,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             int value = 0;
             try {
                 value = Integer.valueOf(rawValue);
-            } catch (NumberFormatException e) { }
+            } catch (NumberFormatException e) {
+            }
 
             try {
                 if (value >= 0 && value < 128) {
@@ -333,16 +549,13 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else if (symbolType == Types.BOOL)
-        {
+        } else if (symbolType == Types.BOOL) {
             try {
                 pw.append("\ticonst_" + (rawValue.equals("true") ? 1 : 0) + "\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else // float, string
+        } else // float, string
         {
             try {
                 pw.append("\tldc " + rawValue + "\r\n");
@@ -359,32 +572,38 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     @Override
     public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
-        Scope scope = (Scope) scopeTree.get(ctx);
-        Symbol symbol = (Symbol) funcTree.get(ctx);
+        if (ctx.varvalue().calculation() != null) {
+            visitCalculation(ctx.varvalue().calculation());
+            Symbol symbol = new Symbol(ctx.identifier().getText(), Types.FLOAT);
+            symbol.incCount();
+            storeVar(symbol.getType(), symbol.getId(), printWriter);
+        } else {
+            Scope scope = (Scope) scopeTree.get(ctx);
+            Symbol symbol = (Symbol) funcTree.get(ctx);
 
-        Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
+            Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
 
-        pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
-        storeVar(symbol.getType(), symbol.getId(), pw);
-
-        return super.visitSetVariable(ctx);
+            pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
+            storeVar(symbol.getType(), symbol.getId(), pw);
+        }
+        return null;
     }
 
     @Override
     public Object visitVartrans(LastMinuteParser.VartransContext ctx) {
         //get the variable
         Types type = fromContext(ctx.varvalue());
-        if (type == Types.INT){
+        if (type == Types.INT) {
             pushVar(type, ctx.varvalue().varvalnum().getText(), printWriter);
             printWriter.println("iadd");
             Symbol symbol = new Symbol(ctx.identifier().getText(), type);
             storeVar(type, symbol.getId(), printWriter);
-        }   else if (type == Types.FLOAT){
+        } else if (type == Types.FLOAT) {
             pushVar(type, ctx.varvalue().varvalfloat().getText(), printWriter);
             Symbol symbol = new Symbol(ctx.identifier().getText(), type);
             printWriter.println("fadd");
             storeVar(type, symbol.getId(), printWriter);
-        }   else if (type == Types.STRING){
+        } else if (type == Types.STRING) {
             Symbol symbol = new Symbol(ctx.identifier().getText(), type);
 
             printWriter.println("new java/lang/StringBuilder");
@@ -397,15 +616,14 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             printWriter.println("invokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;");
             storeVar(type, symbol.getId(), printWriter);
 
-        }   else if (type == Types.BOOL){
+        } else if (type == Types.BOOL) {
             System.err.println("bool cant be transformed with +:");
         }
         return super.visitVartrans(ctx);
     }
 
     @Override
-    public Object visitForloop(LastMinuteParser.ForloopContext ctx)
-    {
+    public Object visitForloop(LastMinuteParser.ForloopContext ctx) {
         /*
         :   FOR
             OPENPAR
@@ -433,8 +651,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
-    public Object visitIf_else(LastMinuteParser.If_elseContext ctx)
-    {
+    public Object visitIf_else(LastMinuteParser.If_elseContext ctx) {
         Scope scope = (Scope) scopeTree.get(ctx);
 
         visit(ctx.conditionalbody().condition());
@@ -454,9 +671,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         return null;
     }
 
+
     @Override
-    public Object visitWhileloop(LastMinuteParser.WhileloopContext ctx)
-    {
+    public Object visitWhileloop(LastMinuteParser.WhileloopContext ctx) {
         Scope scope = (Scope) scopeTree.get(ctx);
 
         printWriter.println("\t" + scope.getName() + ":");
@@ -511,8 +728,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
  */
 
     @Override
-    public Object visitOperatorCondition(LastMinuteParser.OperatorConditionContext ctx)
-    {
+    public Object visitOperatorCondition(LastMinuteParser.OperatorConditionContext ctx) {
         System.out.println("entered visitOperatorCondition");
 
         pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
@@ -534,8 +750,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
-    public Object visitBoolCondition(LastMinuteParser.BoolConditionContext ctx)
-    {
+    public Object visitBoolCondition(LastMinuteParser.BoolConditionContext ctx) {
         System.out.println("entered visitBoolCondition");
 
         pushVar(Types.INT, ctx.varvalbool().getText().equals("true") ? "1" : "0", printWriter);
@@ -547,29 +762,25 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
-    public Object visitInverseCondition(LastMinuteParser.InverseConditionContext ctx)
-    {
+    public Object visitInverseCondition(LastMinuteParser.InverseConditionContext ctx) {
         System.out.println("TODO visitInverseCondition");
         return super.visitInverseCondition(ctx);
     }
 
     @Override
-    public Object visitAndCondition(LastMinuteParser.AndConditionContext ctx)
-    {
+    public Object visitAndCondition(LastMinuteParser.AndConditionContext ctx) {
         System.out.println("TODO visitAndCondition");
         return super.visitAndCondition(ctx);
     }
 
     @Override
-    public Object visitOrCondition(LastMinuteParser.OrConditionContext ctx)
-    {
+    public Object visitOrCondition(LastMinuteParser.OrConditionContext ctx) {
         System.out.println("TODO visitOrCondition");
         return super.visitOrCondition(ctx);
     }
 
     @Override
-    public Object visitCompareCondition(LastMinuteParser.CompareConditionContext ctx)
-    {
+    public Object visitCompareCondition(LastMinuteParser.CompareConditionContext ctx) {
         System.out.println("TODO visitCompareCondition");
 
         pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
@@ -580,8 +791,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
-    public Object visitNotEqualCondition(LastMinuteParser.NotEqualConditionContext ctx)
-    {
+    public Object visitNotEqualCondition(LastMinuteParser.NotEqualConditionContext ctx) {
         System.out.println("TODO visitNotEqualCondition");
 
         pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
