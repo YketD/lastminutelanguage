@@ -572,13 +572,22 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     @Override
     public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
+        Scope scope = (Scope) scopeTree.get(ctx);
+        Symbol find = null;
+
         if (ctx.varvalue().calculation() != null) {
+
+            find = scope.lookupVariable(ctx.identifier().getText());
+            if (find == null)
+            {
+
+                find = new Symbol(ctx.identifier().getText(), Types.FLOAT);
+                find.incCount();
+            }
+
             visitCalculation(ctx.varvalue().calculation());
-            Symbol symbol = new Symbol(ctx.identifier().getText(), Types.FLOAT);
-            symbol.incCount();
-            storeVar(symbol.getType(), symbol.getId(), printWriter);
+            storeVar(find.getType(), find.getId(), printWriter);
         } else {
-            Scope scope = (Scope) scopeTree.get(ctx);
             Symbol symbol = (Symbol) funcTree.get(ctx);
 
             Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
