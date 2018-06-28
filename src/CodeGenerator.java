@@ -151,7 +151,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     private void addvalue(LastMinuteParser.CalcValContext ctx) {
         if (ctx.varvalnum() != null) {
-            values.add(ctx.varvalnum().INT().getText());
+            values.add(ctx.varvalnum().INT().getText() + ".0");
         } else if (ctx.varvalfloat() != null) {
             String doublestring =
                     ctx.varvalfloat().INT(0).getText() +
@@ -182,10 +182,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             docalc(scope);
         }
         return null;
+
     }
 
     private void calculation() {
-
     }
 
     private void docalc(Scope scope) {
@@ -244,7 +244,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     if (expressions.get(i) == '+') {
                         if ((addcount > 0 || subcount > 0))
                             printWriter.println("\tfadd");
-                       if (!expressions.contains('*') && !expressions.contains('/'))
+                        if (!expressions.contains('*') && !expressions.contains('/'))
                             printWriter.println("\tfadd");
                         else
                             addcount++;
@@ -262,7 +262,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 }
             }
         }
-        if (subcount > 0){
+        if (subcount > 0) {
             printWriter.println("\tfsub");
         }
         if (addcount > 0)
@@ -369,8 +369,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 //    }
 
     private void pushcalcval(LastMinuteParser.CalcValContext ctx) {
-
-
         if (ctx.varvalnum() != null) {
             printWriter.println("bipush " + ctx.varvalnum().INT().getText());
         } else if (ctx.varvalfloat() != null) {
@@ -499,7 +497,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     pw.append("\tfstore " + id + "\r\n");
                     break;
                 case INT:
-                    pw.append("\tistore " + id + "\r\n");
+                    pw.append("\tfstore " + id + "\r\n");
                     break;
                 case STRING:
                     pw.append("\tastore " + id + "\r\n");
@@ -511,14 +509,27 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     private void loadVar(Types symbolType, int id, Appendable pw) {
+        loadVar(symbolType, id, pw, false);
+    }
+
+    private void loadVar(Types symbolType, int id, Appendable pw, boolean compare) {
         try {
             switch (symbolType) {
                 case BOOL:
                 case INT:
-                    pw.append("\tiload " + id + "\r\n");
+                    pw.append("\tfload " + id + "\r\n");
+                    if (compare) {
+                        pw.append("\tf2i\r\n");
+                    }
+
                     break;
                 case FLOAT:
                     pw.append("\tfload " + id + "\r\n");
+                    if (compare) {
+                        pw.append("\tf2i\r\n");
+
+                    }
+
                     break;
                 case STRING:
                     pw.append("\taload " + id + "\r\n");
@@ -530,6 +541,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     private void pushVar(Types symbolType, String rawValue, Appendable pw) {
+        pushVar(symbolType, rawValue, pw, false);
+    }
+
+    private void pushVar(Types symbolType, String rawValue, Appendable pw, boolean compare) {
         if (symbolType == Types.INT) {
             int value = 0;
             try {
@@ -538,13 +553,13 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             }
 
             try {
-                if (value >= 0 && value < 128) {
-                    pw.append("\tbipush " + value + "\r\n");
-                } else if (value >= 128 && value < 32768) {
-                    pw.append("\tsipush " + value + "\r\n");
+                if (compare) {
+                    pw.append("\tldc " + value + ".0 \r\n");
+                    pw.append("\tf2i\r\n");
                 } else {
-                    pw.append("\tldc " + value + "\r\n");
+                    pw.append("\tldc " + value + ".0 \r\n");
                 }
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -558,7 +573,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else // float, string
         {
             try {
-                pw.append("\tldc " + rawValue + "\r\n");
+                if (compare)
+                    pw.append("\tldc " + rawValue + ".0  \r\n");
+                else
+                    pw.append("\tldc " + rawValue +  "\r\n");
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -578,8 +597,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (ctx.varvalue().calculation() != null) {
 
             find = scope.lookupVariable(ctx.identifier().getText());
-            if (find == null)
-            {
+            if (find == null) {
 
                 find = new Symbol(ctx.identifier().getText(), Types.FLOAT);
                 find.incCount();
@@ -591,8 +609,14 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             Symbol symbol = (Symbol) funcTree.get(ctx);
 
             Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
+            if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT) {
+                if (!(ctx.varvalue().getText().contains("."))) {
+                    pushVar(symbol.getType(), ctx.varvalue().getText(), pw, true);
+                }
+            } else {
+                pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
 
-            pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
+            }
             storeVar(symbol.getType(), symbol.getId(), pw);
         }
         return null;
@@ -612,7 +636,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
             loadVar(symbol.getType(), symbol.getId(), printWriter);
 
-            printWriter.println("\tiadd");
+            printWriter.println("\tfadd");
             storeVar(type, symbol.getId(), printWriter);
         } else if (type == Types.FLOAT) {
             pushVar(type, ctx.varvalue().varvalfloat().getText(), printWriter);
@@ -785,39 +809,32 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
         Scope scope = (Scope) scopeTree.get(ctx);
         Types leftType = fromContext(ctx.varvalue(0));
-        if (leftType == Types.IDENTIFIER)
-        {
+        if (leftType == Types.IDENTIFIER) {
             Symbol left = scope.lookupVariable(ctx.varvalue(0).getText());
-            if (left != null)
-            {
-                loadVar(left.getType(), left.getId(), printWriter);
+            if (left != null) {
+                loadVar(left.getType(), left.getId(), printWriter, true);
+            } else {
+                pushVar(Types.INT, "0", printWriter, true);
             }
-            else
-            {
-                pushVar(Types.INT, "0", printWriter);
-            }
-        }
-        else
-        {
-            pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
+        } else {
+            pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter, true);
         }
 
         Types rightType = fromContext(ctx.varvalue(1));
-        if (rightType == Types.IDENTIFIER)
-        {
+        if (rightType == Types.IDENTIFIER) {
             Symbol right = scope.lookupVariable(ctx.varvalue(1).getText());
-            if (right != null)
-            {
-                loadVar(right.getType(), right.getId(), printWriter);
+            if (right != null) {
+                if (right.getType() == Types.INT) {
+                    loadVar(right.getType(), right.getId(), printWriter, true);
+                } else {
+                    loadVar(right.getType(), right.getId(), printWriter, true);
+
+                }
+            } else {
+                pushVar(Types.INT, "0", printWriter, true);
             }
-            else
-            {
-                pushVar(Types.INT, "0", printWriter);
-            }
-        }
-        else
-        {
-            pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+        } else {
+            pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter, true);
         }
 
         if (ctx.operator().getText().equals("<="))
@@ -888,8 +905,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     @Override
-    public Object visitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx)
-    {
+    public Object visitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx) {
         Scope scope = (Scope) scopeTree.get(ctx);
 
         Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
@@ -898,15 +914,12 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
         pushVar(Types.INT, "1", printWriter);
 
-        if (ctx.INCVAR() != null)
-        {
+        if (ctx.INCVAR() != null) {
             if (symbol.getType() == Types.INT)
-                printWriter.append("iadd\n");
+                printWriter.append("fadd\n");
             else if (symbol.getType() == Types.FLOAT)
                 printWriter.append("fadd\n");
-        }
-        else if (ctx.DECVAR() != null)
-        {
+        } else if (ctx.DECVAR() != null) {
             if (symbol.getType() == Types.INT)
                 printWriter.append("isub\n");
             else if (symbol.getType() == Types.FLOAT)
