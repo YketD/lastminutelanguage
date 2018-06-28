@@ -1,9 +1,19 @@
 doAThing()
 {
+<<<<<<< HEAD
   for(i: 1; i < 10; i +: 1;)
   {
     print(i);
   }
+=======
+  a: 10;
+  if (10 < 2) { a: 2+2; }
+
+<<<<<<< HEAD
+=======
+  a +: 2.3;
+>>>>>>> master
+>>>>>>> master
 }
 
 doAThing();

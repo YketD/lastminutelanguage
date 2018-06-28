@@ -29,6 +29,7 @@
 	forScope1:
 	iload 1
 	bipush 10
+<<<<<<< HEAD
 	if_icmpge forScope1_end
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 	iload 1
@@ -40,6 +41,34 @@
 	istore 1
 	goto forScope1
 	forScope1_end:
+=======
+	bipush 2
+<<<<<<< Updated upstream
+	if_icmple scope_1_end
+	ldc 2
+	ldc 2
+	fadd
+	ldc 2
+	fadd
+	ldc 1.2
+	fadd
+	fstore 1
+	goto scope_1_end
+	scope_1_end:
+	ldc 2.3
+	fload 1
+	fadd
+	fstore 1
+=======
+	if_icmpge scope_1_end
+	ldc 2
+	ldc 2
+fadd
+	fstore 1
+	goto scope_1_end
+	scope_1_end:
+>>>>>>> Stashed changes
+>>>>>>> master
 	return
 .end method
 
