@@ -222,9 +222,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                                 printWriter);
                     values.remove(i);
                     if (expressions.get(i) == '*')
-                        printWriter.println("fmul");
+                        printWriter.println("\tfmul");
                     else
-                        printWriter.println("fdiv");
+                        printWriter.println("\tfdiv");
                     expressions.remove(i);
                     i--;
                     expressionslength = expressions.size();
@@ -243,16 +243,16 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     values.remove(i);
                     if (expressions.get(i) == '+') {
                         if ((addcount > 0 || subcount > 0))
-                            printWriter.println("fadd");
-                        if (!expressions.contains('*') && !expressions.contains('/'))
-                            printWriter.println("fadd");
+                            printWriter.println("\tfadd");
+                       if (!expressions.contains('*') && !expressions.contains('/'))
+                            printWriter.println("\tfadd");
                         else
                             addcount++;
                     } else {
                         if ((addcount > 0 || subcount > 0))
-                            printWriter.println("fsub");
+                            printWriter.println("\tfsub");
                         if (!expressions.contains('*') && !expressions.contains('/'))
-                            printWriter.println("fsub");
+                            printWriter.println("\tfsub");
                         else
                             subcount++;
                     }
@@ -262,11 +262,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 }
             }
         }
-        if (subcount > 0) {
-            printWriter.println("fsub");
+        if (subcount > 0){
+            printWriter.println("\tfsub");
         }
         if (addcount > 0)
-            printWriter.println("fadd");
+            printWriter.println("\tfadd");
     }
 //                Symbol var;
 //                if (!NumberUtils.isNumber(values.get(i)) || !NumberUtils.isNumber(values.get(i + 1))) {
@@ -602,27 +602,39 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitVartrans(LastMinuteParser.VartransContext ctx) {
         //get the variable
         Types type = fromContext(ctx.varvalue());
+        Scope scope = (Scope) scopeTree.get(ctx);
+
         if (type == Types.INT) {
             pushVar(type, ctx.varvalue().varvalnum().getText(), printWriter);
-            printWriter.println("iadd");
-            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
+
+            Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+            if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
+
+            loadVar(symbol.getType(), symbol.getId(), printWriter);
+
+            printWriter.println("\tiadd");
             storeVar(type, symbol.getId(), printWriter);
         } else if (type == Types.FLOAT) {
             pushVar(type, ctx.varvalue().varvalfloat().getText(), printWriter);
-            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
-            printWriter.println("fadd");
+
+            Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+            if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
+
+            loadVar(symbol.getType(), symbol.getId(), printWriter);
+
+            printWriter.println("\tfadd");
             storeVar(type, symbol.getId(), printWriter);
         } else if (type == Types.STRING) {
             Symbol symbol = new Symbol(ctx.identifier().getText(), type);
 
-            printWriter.println("new java/lang/StringBuilder");
-            printWriter.println("dup");
-            printWriter.println("invokespecial java/lang/StringBuilder/<init>()V");
+            printWriter.println("\tnew java/lang/StringBuilder");
+            printWriter.println("\tdup");
+            printWriter.println("\tinvokespecial java/lang/StringBuilder/<init>()V");
             loadVar(type, symbol.getId(), printWriter);
-            printWriter.println("invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-            printWriter.println("ldc " + ctx.varvalue().varvalstring().getText());
-            printWriter.println("invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-            printWriter.println("invokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;");
+            printWriter.println("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            printWriter.println("\tldc " + ctx.varvalue().varvalstring().getText());
+            printWriter.println("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            printWriter.println("\tinvokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;");
             storeVar(type, symbol.getId(), printWriter);
 
         } else if (type == Types.BOOL) {
@@ -739,6 +751,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             type = (Types.INT);
         else if (ctx.varvalstring() != null)
             type = (Types.STRING);
+        else if (ctx.varvalfloat() != null)
+            type = (Types.FLOAT);
         else {
             type = null;
         }

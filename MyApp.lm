@@ -3,6 +3,10 @@ doAThing()
   a: 10;
   if (10 < 2) { a: 2+2; }
 
+<<<<<<< HEAD
+=======
+  a +: 2.3;
+>>>>>>> master
 }
 
 doAThing();

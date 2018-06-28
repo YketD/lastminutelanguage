@@ -168,6 +168,13 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     }
 
     @Override
+    public Types visitVartrans(LastMinuteParser.VartransContext ctx)
+    {
+        scopeTree.put(ctx, currentScope);
+        return super.visitVartrans(ctx);
+    }
+
+    @Override
     public Types visitIf_else(LastMinuteParser.If_elseContext ctx)
     {
         String scopeName = "scope_" + scopecount++;
@@ -363,6 +370,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             type = (Types.INT);
         else if (ctx.varvalstring() != null)
             type = (Types.STRING);
+        else if (ctx.varvalfloat() != null)
+            type = (Types.FLOAT);
         else{type  = null;}
         return type;
     }
