@@ -24,6 +24,7 @@
 .method public doAThing()V
 	.limit stack 100
 	.limit locals 100
+<<<<<<< Updated upstream
 	bipush 1
 	istore 1
 	scope_2:
@@ -81,6 +82,29 @@
 	bipush 4
 	istore 1
 	scope_1_end:
+=======
+	ldc 1
+	fstore 1
+	ldc 100
+	ldc 11111
+fdiv
+	fload 1
+fmul
+	ldc 8520
+	ldc 50
+fmul
+	ldc 100
+fdiv
+	fload 1
+fadd
+fadd
+fadd
+	fstore 2
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	fload 1
+	    invokevirtual java/io/PrintStream/println(F)V 
+
+>>>>>>> Stashed changes
 	return
 .end method
 
