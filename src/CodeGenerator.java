@@ -783,6 +783,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         System.out.println("entered visitOperatorCondition");
 
 
+        Scope scope = (Scope) scopeTree.get(ctx);
         Types leftType = fromContext(ctx.varvalue(0));
         if (leftType == Types.IDENTIFIER)
         {
