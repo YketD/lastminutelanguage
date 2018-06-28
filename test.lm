@@ -32,17 +32,17 @@
 	if_icmple scope_1_end
 	ldc 2
 	ldc 2
-fadd
+	fadd
 	ldc 2
-fadd
+	fadd
 	ldc 1.2
-fadd
+	fadd
 	fstore 1
 	goto scope_1_end
 	scope_1_end:
+	ldc 2.3
 	fload 1
-	ldc 2
-fadd
+	fadd
 	fstore 1
 	return
 .end method
