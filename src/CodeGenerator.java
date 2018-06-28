@@ -469,7 +469,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             functions.append("\tldc " + print + "\n");
-            functions.append("\t    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
+            functions.append("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
         } else {
             printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
             printWriter.println("\tldc " + print);
@@ -481,11 +481,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), pw);
-            functions.append("\t    invokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         } else {
             printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
             loadVar(symbol.getType(), symbol.getId(), pw);
-            printWriter.println("\t    invokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+            printWriter.println("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         }
     }
 
@@ -787,8 +787,43 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitOperatorCondition(LastMinuteParser.OperatorConditionContext ctx) {
         System.out.println("entered visitOperatorCondition");
 
-        pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
-        pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+        Scope scope = (Scope) scopeTree.get(ctx);
+
+        Types leftType = fromContext(ctx.varvalue(0));
+        if (leftType == Types.IDENTIFIER)
+        {
+            Symbol left = scope.lookupVariable(ctx.varvalue(0).getText());
+            if (left != null)
+            {
+                loadVar(left.getType(), left.getId(), printWriter);
+            }
+            else
+            {
+                pushVar(Types.INT, "0", printWriter);
+            }
+        }
+        else
+        {
+            pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter);
+        }
+
+        Types rightType = fromContext(ctx.varvalue(1));
+        if (rightType == Types.IDENTIFIER)
+        {
+            Symbol right = scope.lookupVariable(ctx.varvalue(1).getText());
+            if (right != null)
+            {
+                loadVar(right.getType(), right.getId(), printWriter);
+            }
+            else
+            {
+                pushVar(Types.INT, "0", printWriter);
+            }
+        }
+        else
+        {
+            pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
+        }
 
         if (ctx.operator().getText().equals("<="))
             printWriter.print("\tif_icmpgt ");
@@ -854,6 +889,37 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter);
 
         printWriter.print("\tif_icmpeq ");
+        return null;
+    }
+
+    @Override
+    public Object visitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx)
+    {
+        Scope scope = (Scope) scopeTree.get(ctx);
+
+        Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+
+        loadVar(symbol.getType(), symbol.getId(), printWriter);
+
+        pushVar(Types.INT, "1", printWriter);
+
+        if (ctx.INCVAR() != null)
+        {
+            if (symbol.getType() == Types.INT)
+                printWriter.append("iadd\n");
+            else if (symbol.getType() == Types.FLOAT)
+                printWriter.append("fadd\n");
+        }
+        else if (ctx.DECVAR() != null)
+        {
+            if (symbol.getType() == Types.INT)
+                printWriter.append("isub\n");
+            else if (symbol.getType() == Types.FLOAT)
+                printWriter.append("fsub\n");
+        }
+
+        storeVar(symbol.getType(), symbol.getId(), printWriter);
+
         return null;
     }
 }

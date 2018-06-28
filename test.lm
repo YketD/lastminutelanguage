@@ -24,26 +24,22 @@
 .method public doAThing()V
 	.limit stack 100
 	.limit locals 100
-	ldc 10
-	fstore 1
-	scope_2:
+	bipush 1
+	istore 1
+	forScope1:
+	iload 1
 	bipush 10
-	bipush 2
-	if_icmple scope_1_end
-	ldc 2
-	ldc 2
-	fadd
-	ldc 2
-	fadd
-	ldc 1.2
-	fadd
-	fstore 1
-	goto scope_1_end
-	scope_1_end:
-	ldc 2.3
-	fload 1
-	fadd
-	fstore 1
+	if_icmpge forScope1_end
+	getstatic java/lang/System/out Ljava/io/PrintStream;
+	iload 1
+	invokevirtual java/io/PrintStream/println(I)V 
+
+	bipush 1
+	iload 1
+	iadd
+	istore 1
+	goto forScope1
+	forScope1_end:
 	return
 .end method
 

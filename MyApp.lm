@@ -1,12 +1,9 @@
 doAThing()
 {
-  a: 10;
-  if(10 > 2)
+  for(i: 1; i < 10; i +: 1;)
   {
-    a: 2 + 2 + 2+ 1.2;
+    print(i);
   }
-
-  a +: 2.3;
 }
 
 doAThing();

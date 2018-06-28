@@ -349,13 +349,26 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         visit(ctx.vardecl());
         visit(ctx.condition());
-        visit(ctx.varcalc());
         visit(ctx.body());
+        visit(ctx.varcalc());
         closeScope(scopeName);
 
         return null;
     }
 
+    @Override
+    public Types visitOperatorCondition(LastMinuteParser.OperatorConditionContext ctx)
+    {
+        scopeTree.put(ctx, currentScope);
+        return super.visitOperatorCondition(ctx);
+    }
+
+    @Override
+    public Types visitIncrementVariable(LastMinuteParser.IncrementVariableContext ctx)
+    {
+        scopeTree.put(ctx, currentScope);
+        return super.visitIncrementVariable(ctx);
+    }
 
     public Types fromContext(LastMinuteParser.VarvalueContext ctx)
     {
