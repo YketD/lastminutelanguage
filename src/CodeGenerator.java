@@ -323,7 +323,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
         global = true;
 
-
         if (func.getReturnType() != Types.FUNCTION) {
             if (func.getReturnId() != -1)
                 loadVar(func.getReturnType(), func.getReturnId(), printWriter);
@@ -372,9 +371,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     public void print(Symbol symbol, PrintWriter pw) {
+
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            loadVar(symbol.getType(), symbol.getId(), pw);
+            loadVar(symbol.getType(), symbol.getId(), functions);
             functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         } else {
             printWriter.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
@@ -453,10 +453,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
             try {
                 if (compare) {
-                    pw.append("\tldc " + value + ".0 \r\n");
+                    pw.append("\tldc " + value + ".0\r\n");
                     pw.append("\tf2i\r\n");
                 } else {
-                    pw.append("\tldc " + value + ".0 \r\n");
+                    pw.append("\tldc " + value + ".0\r\n");
                 }
 
 
@@ -475,7 +475,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 if (compare)
                     pw.append("\tldc " + rawValue + "\r\n");
                 else
-                    pw.append("\tldc " + rawValue +  "\r\n");
+                    pw.append("\tldc " + rawValue + "\r\n");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -507,6 +507,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else {
             Symbol symbol = (Symbol) funcTree.get(ctx);
 
+            System.out.println(symbol.getName() + " == " + symbol.getType());
+
             Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
             if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT) {
                 if (!(ctx.varvalue().getText().contains("."))) {
@@ -528,12 +530,12 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         //get the variable
         Types type = fromContext(ctx.varvalue());
         Scope scope = (Scope) scopeTree.get(ctx);
-
         if (type == Types.INT) {
             pushVar(type, ctx.varvalue().varvalnum().getText(), printWriter);
 
             Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
             if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
+
 
             loadVar(symbol.getType(), symbol.getId(), printWriter);
 

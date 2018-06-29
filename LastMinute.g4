@@ -41,6 +41,7 @@ statement
     |       identifier
     |       calculation
     |       varvalstring
+    |       funccall
     ;
 
             //Float
