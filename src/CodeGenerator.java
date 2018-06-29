@@ -112,7 +112,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else if (type == Types.CHAR) {
             print("\"" + ctx.extendedparams().varvalue().get(0).varvalchar().getText() + "\"");
         } else if (type == Types.ARRAY) {
-            System.err.append("cant print array lol");
+            System.err.append("cant print array");
         } else if (type == Types.IDENTIFIER) {
             String varName = ctx.extendedparams().varvalue().get(0).identifier().getText();
             Scope scope = (Scope) scopeTree.get(ctx);
@@ -375,11 +375,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), functions);
-            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ";)V \n");
         } else {
             printWriter.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), pw);
-            printWriter.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+            printWriter.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ";)V \n");
         }
     }
 
