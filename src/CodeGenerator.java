@@ -360,7 +360,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public void print(String print) {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            functions.append("\tldc " + print + "\n");
+            functions.append("\tldc " + print);
             functions.append("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
         } else {
             printWriter.println("\tgetstatic java/lang/System/out Ljava/io/PrintStream;");
@@ -370,6 +370,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     public void print(Symbol symbol, PrintWriter pw) {
+
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), pw);
@@ -447,10 +448,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
             try {
                 if (compare) {
-                    pw.append("\tldc " + value + ".0 \r\n");
+                    pw.append("\tldc " + value + ".0\r\n");
                     pw.append("\tf2i\r\n");
                 } else {
-                    pw.append("\tldc " + value + ".0 \r\n");
+                    pw.append("\tldc " + value + ".0\r\n");
                 }
 
 
@@ -469,7 +470,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 if (compare)
                     pw.append("\tldc " + rawValue + "\r\n");
                 else
-                    pw.append("\tldc " + rawValue +  "\r\n");
+                    pw.append("\tldc " + rawValue + "\r\n");
 
             } catch (IOException e) {
                 e.printStackTrace();

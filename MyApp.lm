@@ -1,7 +1,9 @@
 myInt: 1; ## Define integer
-myStr: “hello world”; ## Define string
-myChr: ‘a’; ## Define char
-myBln: true; ## Define boolean
-myFlt: 1.25; ## Define float
-myArr: <1, 2>; ## Define array
-myRef: myInt; ## Reference to myInt
+print(myInt);
+
+##myStr: “hello world”; ## Define string
+##myChr: ‘a’; ## Define char
+##myBln: true; ## Define boolean
+##myFlt: 1.25; ## Define float
+##myArr: <1, 2>; ## Define array
+##myRef: myInt; ## Reference to myInt
