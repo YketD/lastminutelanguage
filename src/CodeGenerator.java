@@ -21,6 +21,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     private ArrayList<String> values = new ArrayList<>();
     private ArrayList<Character> expressions = new ArrayList<>();
     private int subcount = 0, addcount = 0;
+    private char bufferedexpression = '0';
 
     private boolean global = true;
 
@@ -227,6 +228,15 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     expressionslength = expressions.size();
 
                 } else {
+                    if(bufferedexpression == '0'){
+                        bufferedexpression = expressions.get(i);
+                    }else if (bufferedexpression == '+'){
+                        printWriter.println("\tfadd");
+                        bufferedexpression = expressions.get(i);
+                    }else if (bufferedexpression == '-'){
+                        printWriter.println("\tfadd");
+                        bufferedexpression = expressions.get(i);
+                    }
                     if (!NumberUtils.isNumber(values.get(i)))
                         loadVar(
                                 scope.lookupVariable(values.get(i)).getType(),
@@ -238,132 +248,19 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                                 values.get(i),
                                 printWriter);
                     values.remove(i);
-                    if (expressions.get(i) == '+') {
-                        if ((addcount > 0 || subcount > 0))
-                            printWriter.println("\tfadd");
-                        if (!expressions.contains('*') && !expressions.contains('/'))
-                            printWriter.println("\tfadd");
-                        else
-                            addcount++;
-                    } else {
-                        if ((addcount > 0 || subcount > 0))
-                            printWriter.println("\tfsub");
-                        if (!expressions.contains('*') && !expressions.contains('/'))
-                            printWriter.println("\tfsub");
-                        else
-                            subcount++;
-                    }
+
                     expressions.remove(i);
                     i--;
                     expressionslength = expressions.size();
                 }
             }
         }
-        if (subcount > 0) {
-            printWriter.println("\tfsub");
-        }
-        if (addcount > 0)
+        if (bufferedexpression == '+'){
             printWriter.println("\tfadd");
+        }else if (bufferedexpression == '-') {
+            printWriter.println("\tfadd");
+        }
     }
-//                Symbol var;
-//                if (!NumberUtils.isNumber(values.get(i)) || !NumberUtils.isNumber(values.get(i + 1))) {
-//                    if (!NumberUtils.isNumber(values.get(i))) {
-//                        var = getVariable(scope, values.get(i));
-//                        loadVar(var.getType(), var.getId(), printWriter);
-//                    } else {
-//                        printWriter.println("ldc " + Double.parseDouble(values.get(i + 1)));
-//                    }
-//                    if (!NumberUtils.isNumber(values.get(i + 1))) {
-//                        var = getVariable(scope, values.get(i));
-//                        loadVar(var.getType(), var.getId(), printWriter);
-//                    } else {
-//                        printWriter.println("ldc " + Double.parseDouble(values.get(i + 1)));
-//                    }
-//                    printWriter.println("fmul");
-//                }
-//            } else{
-//                values.set(i, Double.toString(Double.parseDouble(values.get(i)) * Double.parseDouble(values.get(i + 1))));
-//                values.remove(i + 1);
-//
-//                expressionslength--;
-//                expressions.remove(i);
-//                i--;
-//            }
-////                }else{
-////                    values.set(i, values.get(i) / values.get(i + 1));
-////                    values.remove(i + 1);
-////
-////                    expressionslength--;
-////                    expressions.remove(i);
-////                    i--;
-////                }
-//        }
-//    }
-//
-//    expressionslength =expressions.size();
-//        for(
-//    int i = 0;
-//    i<expressionslength;i++)
-//
-//    {
-//        if (expressions.get(i) == '-' || expressions.get(i) == '+') {
-//            System.out.println("then do :" + values.get(i) + " " + expressions.get(i) + " " + values.get(i + 1));
-//            if (expressions.get(i) == '+') {
-//                values.set(i, values.get(i) + values.get(i + 1));
-//                values.remove(i + 1);
-//
-//                expressionslength--;
-//                expressions.remove(i);
-//                i--;
-//            } else {
-////                    values.set(i, values.get(i) - values.get(i + 1));
-//                values.remove(i + 1);
-//
-//                expressionslength--;
-//                expressions.remove(i);
-//                i--;
-//            }
-//        }
-//    }
-//        System.out.println("result of calc:"+values.get(0));
-//}
-    //    @Override
-//    public Object visitCalcMore(LastMinuteParser.CalcMoreContext ctx) {
-//        if (ctx.calculation() == null){
-//            pushcalcval(ctx.calcVal());
-//        }
-//        if (ctx.calculation() != null){
-//            visit(ctx.calculation());
-//        }
-//        if (ctx.PLUS() != null){
-//            if (floatcalc) {
-//                printWriter.println("swap");
-//                printWriter.println("i2f");
-//                printWriter.println("fadd");
-//            }   else {
-//                printWriter.println("iadd");
-//            }
-//        }
-//        if (ctx.MINUS() != null){
-//            if (floatcalc) {
-//                printWriter.println("swap");
-//                printWriter.println("i2f");
-//                printWriter.println("fadd");
-//            } else {
-//                printWriter.println("fsub");
-//            }
-//        }
-//         if (ctx.TIMES() != null){
-//            printWriter.println("imult");
-//        }
-//        if (ctx.DIVIDE() != null){
-//            printWriter.println("idiv");
-//        }
-//        if (ctx.MODULO() != null){
-//            printWriter.println("imod");
-//        }
-//        return null;
-//    }
 
     private void pushcalcval(LastMinuteParser.CalcValContext ctx) {
         if (ctx.varvalnum() != null) {
@@ -524,7 +421,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     pw.append("\tfload " + id + "\r\n");
                     if (compare) {
                         pw.append("\tf2i\r\n");
-
                     }
 
                     break;
@@ -608,7 +504,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
             if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT) {
                 if (!(ctx.varvalue().getText().contains("."))) {
-                    pushVar(symbol.getType(), ctx.varvalue().getText(), pw, true);
+                    pushVar(Types.INT, ctx.varvalue().getText(), pw);
                 }
             } else {
                 pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
@@ -811,7 +707,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             if (left != null) {
                 loadVar(left.getType(), left.getId(), printWriter, true);
             } else {
-                pushVar(Types.INT, "0", printWriter, true);
+                pushVar(Types.INT, "0", printWriter);
             }
         } else {
             pushVar(Types.INT, ctx.varvalue(0).getText(), printWriter, true);
@@ -828,7 +724,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
                 }
             } else {
-                pushVar(Types.INT, "0", printWriter, true);
+                pushVar(Types.INT, "0", printWriter);
             }
         } else {
             pushVar(Types.INT, ctx.varvalue(1).getText(), printWriter, true);
