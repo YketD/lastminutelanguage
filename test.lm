@@ -21,15 +21,24 @@
 	return
 .end method
 
-	fload 1
+.method public myFunc()Ljava/lang/String
+	.limit stack 100
+	.limit locals 100
+	ldc 1.0
+	fstore 1
+	ldc "abc"
+	areturn
+.end method
+
 
 .method public run()V
 	.limit stack 100
 	.limit locals 100
 
-	ldc 1.0
-	fstore 1
+	ldc 0.0
+	fstore 2
 	getstatic java/lang/System/out Ljava/io/PrintStream;
+	fload 2
 	invokevirtual java/io/PrintStream/println(F)V 
 
 	return
