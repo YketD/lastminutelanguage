@@ -174,6 +174,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             expressions.add('*');
         } else if (ctx.DIVIDE() != null) {
             expressions.add('/');
+        } else if (ctx.MODULO() != null){
+            expressions.add('%');
         }
         if (ctx.calculation() != null) {
             visit(ctx.calculation());
@@ -186,10 +188,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     }
 
-    private void calculation() {
-    }
-
     private void docalc(Scope scope) {
+
         int expressionslength = expressions.size();
         boolean loadfirst = true;
         for (int i = 0; i < expressionslength; i++) {
@@ -210,7 +210,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 loadfirst = false;
 
             } else {
-                if ((expressions.get(i) == '*' || expressions.get(i) == '/')) {
+                if ((expressions.get(i) == '*' || expressions.get(i) == '/' || expressions.get(i) == '%')) {
                     if (!NumberUtils.isNumber(values.get(i)))
                         loadVar(
                                 scope.lookupVariable(values.get(i)).getType(),
@@ -224,8 +224,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                     values.remove(i);
                     if (expressions.get(i) == '*')
                         printWriter.println("\tfmul");
-                    else
+                    else if (expressions.get(i) == '/')
                         printWriter.println("\tfdiv");
+                    else {
+                        printWriter.println("\tfrem");
+                    }
                     expressions.remove(i);
                     i--;
                     expressionslength = expressions.size();
@@ -414,22 +417,26 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             switch (symbolType) {
                 case BOOL:
                 case INT:
-                    pw.append("\tfload " + id + "\r\n");
-                    if (compare) {
-                        pw.append("\tf2i\r\n");
-                    }
-
-                    break;
                 case FLOAT:
-                    pw.append("\tfload " + id + "\r\n");
-                    if (compare) {
-                        pw.append("\tf2i\r\n");
+                    if (global) {
+                        functions.append("\tfload " + id + "\r\n");
+                        if (compare) {
+                            functions.append("\tf2i\r\n");
+                        }
+                    }   else{
+                        pw.append("\tfload " + id + "\r\n");
+                        if (compare) {
+                            pw.append("\tf2i\r\n");
                     }
-
+                    }
                     break;
                 case STRING:
-                    pw.append("\taload " + id + "\r\n");
-                    break;
+                    if (global) {
+                        functions.append("\taload " + id + "\r\n");
+                    }   else {
+                        pw.append("\taload " + id + "\r\n");
+                        break;
+                    }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -639,7 +646,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.println("\t" + quitScope + ":");
         return null;
     }
-
 
     @Override
     public Object visitWhileloop(LastMinuteParser.WhileloopContext ctx) {
