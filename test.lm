@@ -21,75 +21,24 @@
 	return
 .end method
 
-.method public doAThing()V
-	.limit stack 100
-	.limit locals 100
-<<<<<<< Updated upstream
-	bipush 1
-	istore 1
-	forScope1:
-	iload 1
-	bipush 10
-<<<<<<< HEAD
-	if_icmpge forScope1_end
-	getstatic java/lang/System/out Ljava/io/PrintStream;
-	iload 1
-	invokevirtual java/io/PrintStream/println(I)V 
-
-	bipush 1
-	iload 1
-	iadd
-	istore 1
-	goto forScope1
-	forScope1_end:
-=======
-	bipush 2
-<<<<<<< Updated upstream
-	if_icmple scope_1_end
-	ldc 2
-	ldc 2
-	fadd
-	ldc 2
-	fadd
-	ldc 1.2
-	fadd
-	fstore 1
-	goto scope_1_end
-	scope_1_end:
-	ldc 2.3
-	fload 1
-	fadd
-	fstore 1
-=======
-=======
-	bipush 10
-	istore 1
-	scope_2:
-	bipush 1
-	bipush 0
->>>>>>> Stashed changes
-	if_icmpge scope_1_end
-	getstatic java/lang/System/out Ljava/io/PrintStream;
-	iload 1
-	    invokevirtual java/io/PrintStream/println(I)V 
-
-	goto scope_1_end
-	scope_1_end:
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
->>>>>>> master
-=======
->>>>>>> Stashed changes
-	return
-.end method
-
 
 .method public run()V
 	.limit stack 100
 	.limit locals 100
 
-	aload_0
-	invokevirtual test/doAThing()V
+	ldc 1.0 
+	f2i
+	fstore 1
+	ldc hello
+	fstore 2
+	ldc a
+	fstore 3
+	iconst_1
+	istore 4
+	fstore 5
+	ldc <1,2>
+	ldc myInt
+	fstore 7
 
 	return
 .end method

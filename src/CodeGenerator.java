@@ -2,16 +2,13 @@ import Model.Function;
 import Model.Scope;
 import Model.Symbol;
 import Model.Types;
-import org.antlr.runtime.misc.DoubleKeyMap;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
-import org.antlr.v4.runtime.tree.RuleNode;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class CodeGenerator extends LastMinuteBaseVisitor {
@@ -574,7 +571,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         {
             try {
                 if (compare)
-                    pw.append("\tldc " + rawValue + ".0  \r\n");
+                    pw.append("\tldc " + rawValue + "\r\n");
                 else
                     pw.append("\tldc " + rawValue +  "\r\n");
 
