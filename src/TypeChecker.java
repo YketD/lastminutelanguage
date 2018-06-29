@@ -77,6 +77,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     @Override
     public Types visitFuncdecl(LastMinuteParser.FuncdeclContext ctx)
     {
+        scopeTree.put(ctx, currentScope);
+
         // Get function name
         String funcName = ctx.identifier().getText();
 
@@ -113,9 +115,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
         }
 
+        currentScope.declareFunction(func);
         newFuncScope(funcName, func, ctx);
 
-        currentScope.declareFunction(func);
         funcmap.put(func.getName(), func);
         funcTree.put(ctx, func);
 
@@ -385,6 +387,8 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             type = (Types.STRING);
         else if (ctx.varvalfloat() != null)
             type = (Types.FLOAT);
+        else if (ctx.funccall() != null)
+            type = (Types.FUNCTION);
         else{type  = null;}
         return type;
     }

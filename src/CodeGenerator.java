@@ -338,10 +338,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         try {
             switch (symbolType) {
                 case BOOL:
-                case INT:
                     pw.append("\tireturn\r\n");
                     break;
                 case FLOAT:
+                case INT: // changed  all types to float
                     pw.append("\tfreturn\r\n");
                     break;
                 case STRING:
@@ -501,16 +501,24 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         } else {
             Symbol symbol = (Symbol) funcTree.get(ctx);
 
-            System.out.println(symbol.getName() + " == " + symbol.getType());
-
             Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
-            if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT) {
-                if (!(ctx.varvalue().getText().contains("."))) {
+            if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT)
+            {
+                if (!(ctx.varvalue().getText().contains(".")))
+                {
                     pushVar(Types.INT, ctx.varvalue().getText(), pw);
                 }
+            }
+            else if (symbol.getType() == Types.FUNCTION) {
+                Function func = scope.lookupFunction(ctx.varvalue().funccall().identifier().getText());
+
+                System.out.println(func);
+
+                visitFunccall(ctx.varvalue().funccall());
+
+                symbol.setType(func.getReturnType());
             } else {
                 pushVar(symbol.getType(), ctx.varvalue().getText(), pw);
-
             }
             storeVar(symbol.getType(), symbol.getId(), pw);
         }
@@ -672,6 +680,8 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             type = (Types.STRING);
         else if (ctx.varvalfloat() != null)
             type = (Types.FLOAT);
+        else if (ctx.funccall() != null)
+            type = (Types.FUNCTION);
         else {
             type = null;
         }

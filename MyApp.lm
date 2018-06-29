@@ -1,7 +1,8 @@
 myFunc() {
-thing: 1;
-return "abc";
+return 1;
 }
 
-thing: myFunc();;
-print(thing);
+asd: myFunc();;
+print(asd);
+
+myFunc();
