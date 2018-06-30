@@ -5,6 +5,7 @@ import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,12 +65,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         printWriter.append("\r\n\treturn                                               \n ");
         printWriter.append(".end method\r\n");
 
-//        if (ctx.methodeUITVOERING() != null) {
-//            for (int i = 0; i < ctx.methodeUITVOERING().size(); i++) {
-//                visit(ctx.methodeUITVOERING(i));
-//                printWriter.append("");
-//            }
-//        }
     }
 
     public void createRunMethod() {
@@ -90,7 +85,26 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             String title = ctx.identifier().getText();
             Function func = (Function) funcTree.get(ctx);
             functions.append("\taload_0\n");
-            functions.append("\tinvokevirtual " + className + "/" + title + "()" + Symbol.getMnenonic(func.getReturnType()) + "\n");
+            Scope scope = (Scope) scopeTree.get(ctx);
+            ArrayList<String> mnemonics = new ArrayList<>();
+            for (LastMinuteParser.VarvalueContext vvctx :ctx.extendedparams().varvalue()) {
+                mnemonics.add(Symbol.getMnenonic(Types.UNASSIGNED));
+                if (vvctx.identifier() != null) {
+                    Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+                            loadVar(symbol.getType(), symbol.getId(), functions);
+                }else{
+                    pushVar(fromContext(vvctx), vvctx.getText(), functions);
+                }
+            }
+            functions.append("\tinvokevirtual " + className + "/" + title + "(");
+            for (int i =0 ; i < mnemonics.size(); i++){
+                if (i == mnemonics.size()-1) {
+                    functions.append( mnemonics.get(i)+ ";");
+                }   else {
+                    functions.append(mnemonics.get(i) + ";");
+                }
+            }
+            functions.append(")" + Symbol.getMnenonic(func.getReturnType()) + "\n");
 
         }
         return super.visitFunccall(ctx);
@@ -375,11 +389,11 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         if (global) {
             functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), functions);
-            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ";)V \n");
+            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         } else {
             printWriter.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), pw);
-            printWriter.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ";)V \n");
+            printWriter.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
         }
     }
 
@@ -458,7 +472,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
                 } else {
                     pw.append("\tldc " + value + ".0\r\n");
                 }
-
 
             } catch (IOException e) {
                 e.printStackTrace();
