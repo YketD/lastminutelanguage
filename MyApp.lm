@@ -1,6 +1,6 @@
 start() {
     question: "Insert your question here";
-    result: rand();
+    result: rand(); ## Random number 0-999
 
     print("Asking the 8ball");
     print(question);

@@ -346,6 +346,7 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
 
         scopeTree.put(ctx, currentScope);
 
+        visit(ctx.conditionalbody().condition());
         visit(ctx.conditionalbody().body());
 
         closeScope(scopeName);

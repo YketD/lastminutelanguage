@@ -24,7 +24,7 @@
 	.limit locals 100
 	ldc "Insert your question here"
 	astore 1
-	ldc 652.0
+	ldc 54.0
 	fstore 2
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 	ldc "Asking the 8ball"
