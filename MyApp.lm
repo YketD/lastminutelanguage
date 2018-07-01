@@ -1,2 +1,22 @@
-result: rand();
-print(result);
+start() {
+    question: "Insert your question here";
+    result: rand();
+
+    print("Asking the 8ball");
+    print(question);
+    print("----------------");
+
+    if (result < 305) {
+      print("Yes");
+    }
+    else if (result < 610)
+    {
+      print("No");
+    }
+    else
+    {
+      print("Maybe");
+    }
+}
+
+start();

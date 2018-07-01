@@ -230,92 +230,121 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     private void docalc(Scope scope) {
 
+        Appendable pw = (global ? functions : printWriter);
         int expressionslength = expressions.size();
         boolean loadfirst = true;
-        for (int i = 0; i < expressionslength; i++) {
-            if (loadfirst) {
-                if (!NumberUtils.isNumber(values.get(i)))
-                    loadVar(
-                            scope.lookupVariable(values.get(i)).getType(),
-                            scope.lookupVariable(values.get(i)).getId(),
-                            printWriter);
-                else
-                    pushVar(
-                            Types.FLOAT,
-                            values.get(i),
-                            printWriter);
-                values.remove(i);
-                i--;
-                expressionslength = expressions.size();
-                loadfirst = false;
-
-            } else {
-                if ((expressions.get(i) == '*' || expressions.get(i) == '/' || expressions.get(i) == '%')) {
+        try
+        {
+            for (int i = 0; i < expressionslength; i++)
+            {
+                if (loadfirst)
+                {
                     if (!NumberUtils.isNumber(values.get(i)))
                         loadVar(
                                 scope.lookupVariable(values.get(i)).getType(),
                                 scope.lookupVariable(values.get(i)).getId(),
-                                printWriter);
+                                pw);
                     else
                         pushVar(
                                 Types.FLOAT,
                                 values.get(i),
-                                printWriter);
+                                pw);
                     values.remove(i);
-                    if (expressions.get(i) == '*')
-                        printWriter.append("\tfmul\n");
-                    else if (expressions.get(i) == '/')
-                        printWriter.append("\tfdiv\n");
-                    else {
-                        printWriter.append("\tfrem\n");
-                    }
-                    expressions.remove(i);
                     i--;
                     expressionslength = expressions.size();
+                    loadfirst = false;
 
-                } else {
-                    if(bufferedexpression == '0'){
-                        bufferedexpression = expressions.get(i);
-                    }else if (bufferedexpression == '+'){
-                        printWriter.append("\tfadd\n");
-                        bufferedexpression = expressions.get(i);
-                    }else if (bufferedexpression == '-'){
-                        printWriter.append("\tfadd\n");
-                        bufferedexpression = expressions.get(i);
+                } else
+                {
+                    if ((expressions.get(i) == '*' || expressions.get(i) == '/' || expressions.get(i) == '%'))
+                    {
+                        if (!NumberUtils.isNumber(values.get(i)))
+                            loadVar(
+                                    scope.lookupVariable(values.get(i)).getType(),
+                                    scope.lookupVariable(values.get(i)).getId(),
+                                    pw);
+                        else
+                            pushVar(
+                                    Types.FLOAT,
+                                    values.get(i),
+                                    pw);
+                        values.remove(i);
+                        if (expressions.get(i) == '*')
+                            pw.append("\tfmul\n");
+                        else if (expressions.get(i) == '/')
+                            pw.append("\tfdiv\n");
+                        else
+                        {
+                            pw.append("\tfrem\n");
+                        }
+                        expressions.remove(i);
+                        i--;
+                        expressionslength = expressions.size();
+
+                    } else
+                    {
+                        if (bufferedexpression == '0')
+                        {
+                            bufferedexpression = expressions.get(i);
+                        } else if (bufferedexpression == '+')
+                        {
+                            printWriter.append("\tfadd\n");
+                            bufferedexpression = expressions.get(i);
+                        } else if (bufferedexpression == '-')
+                        {
+                            printWriter.append("\tfadd\n");
+                            bufferedexpression = expressions.get(i);
+                        }
+                        if (!NumberUtils.isNumber(values.get(i)))
+                            loadVar(
+                                    scope.lookupVariable(values.get(i)).getType(),
+                                    scope.lookupVariable(values.get(i)).getId(),
+                                    pw);
+                        else
+                            pushVar(
+                                    Types.FLOAT,
+                                    values.get(i),
+                                    pw);
+                        values.remove(i);
+
+                        expressions.remove(i);
+                        i--;
+                        expressionslength = expressions.size();
                     }
-                    if (!NumberUtils.isNumber(values.get(i)))
-                        loadVar(
-                                scope.lookupVariable(values.get(i)).getType(),
-                                scope.lookupVariable(values.get(i)).getId(),
-                                printWriter);
-                    else
-                        pushVar(
-                                Types.FLOAT,
-                                values.get(i),
-                                printWriter);
-                    values.remove(i);
-
-                    expressions.remove(i);
-                    i--;
-                    expressionslength = expressions.size();
                 }
             }
+            if (bufferedexpression == '+')
+            {
+                pw.append("\tfadd\n");
+            } else if (bufferedexpression == '-')
+            {
+                pw.append("\tfadd\n");
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
-        if (bufferedexpression == '+'){
-            printWriter.append("\tfadd\n");
-        }else if (bufferedexpression == '-') {
-            printWriter.append("\tfadd\n");
-        }
+
     }
 
     private void pushcalcval(LastMinuteParser.CalcValContext ctx) {
-        if (ctx.varvalnum() != null) {
-            printWriter.append("bipush " + ctx.varvalnum().INT().getText() + "\n");
-        } else if (ctx.varvalfloat() != null) {
-            printWriter.append("ldc " + ctx.varvalfloat().INT(0).getText() + "." + ctx.varvalfloat().INT(1).getText() + "\n");
-        } else if (ctx.identifier() != null) {
+        Appendable pw = (global ? functions : printWriter);
+
+        try
+        {
+            if (ctx.varvalnum() != null) {
+                pw.append("bipush " + ctx.varvalnum().INT().getText() + "\n");
+            } else if (ctx.varvalfloat() != null) {
+                pw.append("ldc " + ctx.varvalfloat().INT(0).getText() + "." + ctx.varvalfloat().INT(1).getText() + "\n");
+            } else if (ctx.identifier() != null) {
 //            print(getVariable(ctx.identifier().getText()));
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
+
+
     }
 
     private void calculate(String operator) {
@@ -403,14 +432,17 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     public void print(String print) {
-        if (global) {
-            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            functions.append("\tldc " + print + "\n");
-            functions.append("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
-        } else {
-            printWriter.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            printWriter.append("\tldc " + print + "\n");
-            printWriter.append("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V \n");
+
+        Appendable pw = (global ? functions : printWriter);
+
+        try
+        {
+            pw.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            pw.append("\tldc " + print + "\n");
+            pw.append("\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -422,7 +454,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         {
             writer.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
             loadVar(symbol.getType(), symbol.getId(), writer);
-            writer.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V\n");
+            writer.append("\tinvokevirtual java/io/PrintStream/println(" +
+                    symbol.getMnenonic(symbol.getType()) + (symbol.getMnenonic(symbol.getType()).startsWith("L") ? ";" : "") +
+                    ")V\n");
         }
         catch (IOException e)
         {
@@ -537,6 +571,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     @Override
     public Object visitSetVariable(LastMinuteParser.SetVariableContext ctx) {
+        Appendable pw = (global ? functions : printWriter);
         Scope scope = (Scope) scopeTree.get(ctx);
         Symbol find = null;
 
@@ -550,11 +585,10 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             }
 
             visitCalculation(ctx.varvalue().calculation());
-            storeVar(find.getType(), find.getId(), printWriter);
+            storeVar(find.getType(), find.getId(), pw);
         } else {
             Symbol symbol = (Symbol) funcTree.get(ctx);
 
-            Appendable pw = (scope.getName().equals("global") ? functions : printWriter);
             if (symbol.getType() == Types.FLOAT || symbol.getType() == Types.INT)
             {
                 if (!(ctx.varvalue().getText().contains(".")))
@@ -585,42 +619,55 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         //get the variable
         Types type = fromContext(ctx.varvalue());
         Scope scope = (Scope) scopeTree.get(ctx);
-        if (type == Types.INT) {
-            pushVar(type, ctx.varvalue().varvalnum().getText(), printWriter);
+        Appendable pw = (global ? functions : printWriter);
 
-            Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
-            if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
+        try
+        {
+            if (type == Types.INT)
+            {
+                pushVar(type, ctx.varvalue().varvalnum().getText(), pw);
+
+                Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+                if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
 
 
-            loadVar(symbol.getType(), symbol.getId(), printWriter);
+                loadVar(symbol.getType(), symbol.getId(), pw);
 
-            printWriter.append("\tfadd");
-            storeVar(type, symbol.getId(), printWriter);
-        } else if (type == Types.FLOAT) {
-            pushVar(type, ctx.varvalue().varvalfloat().getText(), printWriter);
+                pw.append("\tfadd");
+                storeVar(type, symbol.getId(), pw);
+            } else if (type == Types.FLOAT)
+            {
+                pushVar(type, ctx.varvalue().varvalfloat().getText(), pw);
 
-            Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
-            if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
+                Symbol symbol = scope.lookupVariable(ctx.identifier().getText());
+                if (symbol == null) symbol = new Symbol(ctx.identifier().getText(), type);
 
-            loadVar(symbol.getType(), symbol.getId(), printWriter);
+                loadVar(symbol.getType(), symbol.getId(), pw);
 
-            printWriter.append("\tfadd");
-            storeVar(type, symbol.getId(), printWriter);
-        } else if (type == Types.STRING) {
-            Symbol symbol = new Symbol(ctx.identifier().getText(), type);
+                pw.append("\tfadd");
+                storeVar(type, symbol.getId(), pw);
+            } else if (type == Types.STRING)
+            {
+                Symbol symbol = new Symbol(ctx.identifier().getText(), type);
 
-            printWriter.append("\tnew java/lang/StringBuilder\n");
-            printWriter.append("\tdup\n");
-            printWriter.append("\tinvokespecial java/lang/StringBuilder/<init>()V\n");
-            loadVar(type, symbol.getId(), printWriter);
-            printWriter.append("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n");
-            printWriter.append("\tldc " + ctx.varvalue().varvalstring().getText());
-            printWriter.append("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n");
-            printWriter.append("\tinvokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;\n");
-            storeVar(type, symbol.getId(), printWriter);
+                pw.append("\tnew java/lang/StringBuilder\n");
+                pw.append("\tdup\n");
+                pw.append("\tinvokespecial java/lang/StringBuilder/<init>()V\n");
+                loadVar(type, symbol.getId(), pw);
+                pw.append("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n");
+                pw.append("\tldc " + ctx.varvalue().varvalstring().getText());
+                pw.append("\tinvokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;\n");
+                pw.append("\tinvokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;\n");
+                storeVar(type, symbol.getId(), pw);
 
-        } else if (type == Types.BOOL) {
-            System.err.append("bool cant be transformed with +:\n");
+            } else if (type == Types.BOOL)
+            {
+                System.err.append("bool cant be transformed with +:\n");
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
         return super.visitVartrans(ctx);
     }
