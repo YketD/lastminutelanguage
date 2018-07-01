@@ -5,12 +5,12 @@ import Model.Types;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class CodeGenerator extends LastMinuteBaseVisitor {
     private String fileName;
@@ -81,6 +81,9 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     public Object visitFunccall(LastMinuteParser.FunccallContext ctx) {
         if (ctx.identifier().getText().equals("print")) {
             printcall(ctx);
+        }
+        else if (ctx.identifier().getText().equals("rand")) {
+            randcall(ctx);
         } else {
             String title = ctx.identifier().getText();
             Function func = (Function) funcTree.get(ctx);
@@ -110,11 +113,41 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         return super.visitFunccall(ctx);
     }
 
+    private void randcall(LastMinuteParser.FunccallContext ctx) {
+        System.out.println("rand function called");
+
+        Appendable pw = (global ? functions : printWriter);
+        int randomNum = ThreadLocalRandom.current().nextInt(0, 1000);
+        pushVar(Types.INT, String.valueOf(randomNum), pw);
+
+
+        //Symbol returnSymbol = new Symbol("randReturn", Types.FLOAT);
+        //returnSymbol.incCount();
+
+        /*
+        try
+        {
+            pw.append("\tinvokestatic java/util/concurrent/ThreadLocalRandom/current()Ljava/util/concurrent/ThreadLocalRandom;\n");
+            pw.append("\ticonst_0\n");
+            pw.append("\tsipush 1000\n");
+            pw.append("\tinvokevirtual java/util/concurrent/ThreadLocalRandom/nextInt(II)I\n");
+            pw.append("\tistore_" + returnSymbol.getId() + "\n");
+            pw.append("\tiload_" + returnSymbol.getId() + "\n");
+            pw.append("\ti2f\n");
+            pw.append("\tfload_" + returnSymbol.getId() + "\n");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }*/
+
+    }
+
     private void printcall(LastMinuteParser.FunccallContext ctx) {
         System.out.println("print function called");
         System.out.println(fromContext(ctx.extendedparams().varvalue(0)));
         Types type = fromContext(ctx.extendedparams().varvalue(0));
-        String print = "";
+
         if (type == Types.STRING) {
             print(ctx.extendedparams().varvalue().get(0).varvalstring().getText());
         } else if (type == Types.INT) {
@@ -132,9 +165,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
             Scope scope = (Scope) scopeTree.get(ctx);
             Symbol symbol = scope.lookupVariable(varName);
             System.out.println(symbol.getId() + symbol.getType().toString());
-
-//            loadVar(symbol.getType(), symbol.getId(), printWriter);
-
             print(symbol, printWriter);
         } else {
 //            print(getVariable(ctx.extendedparams().varvalue(0).identifier().getText()));
@@ -386,14 +416,17 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
 
     public void print(Symbol symbol, PrintWriter pw) {
 
-        if (global) {
-            functions.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            loadVar(symbol.getType(), symbol.getId(), functions);
-            functions.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
-        } else {
-            printWriter.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
-            loadVar(symbol.getType(), symbol.getId(), pw);
-            printWriter.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V \n");
+        Appendable writer = (global ? functions : printWriter);
+
+        try
+        {
+            writer.append("\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+            loadVar(symbol.getType(), symbol.getId(), writer);
+            writer.append("\tinvokevirtual java/io/PrintStream/println(" + symbol.getMnenonic(symbol.getType()) + ")V\n");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -423,6 +456,7 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
     }
 
     private void loadVar(Types symbolType, int id, Appendable pw, boolean compare) {
+
         try {
             switch (symbolType) {
                 case BOOL:
@@ -707,13 +741,6 @@ public class CodeGenerator extends LastMinuteBaseVisitor {
         }
         return type;
     }
-    //visitStatement
-
-    //visitCalculation
-
-    //visitFuncDecl
-
-    //visitFuncCall
 
 /*
         condition

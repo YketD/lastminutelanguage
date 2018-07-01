@@ -11,13 +11,15 @@ public class Tester
         new Tester().run();
     }
 
+    public int value()
+    {
+        int randomNum = ThreadLocalRandom.current().nextInt(0, 1000);
+        return randomNum;
+    }
+
     public void run()
     {
-        //int randomNum = ThreadLocalRandom.current().nextInt(0, 100 + 1);
-
-        int num = 5;
-        int sum = num + num / num + num * 1;
-
-        System.out.println(sum);
+        int asd = value();
+        System.out.println(asd);
     }
 }

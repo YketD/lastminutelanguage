@@ -23,6 +23,16 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
         scopeTree = new ParseTreeProperty();
         funcTree = new ParseTreeProperty();
         expressionTree = new ParseTreeProperty();
+
+        // Reserved functions
+        Function reserved_Print = new Function("print");
+        funcmap.put("print", reserved_Print);
+        currentScope.declareFunction(reserved_Print);
+
+        Function reserved_Rand = new Function("rand");
+        reserved_Rand.setReturnType(Types.INT, -1);
+        funcmap.put("rand", reserved_Rand);
+        currentScope.declareFunction(reserved_Rand);
     }
 
     public ParseTreeProperty getScopeTree()
@@ -140,7 +150,9 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
                         throw new IllegalArgumentException("Function " + funcName + " contains non existing return variable");
                     else
                     {
-                        func.setReturnType(retVar.getType(), retVar.getId());
+                        Types type = retVar.getType();
+                        if (type == Types.IDENTIFIER) type = Types.FLOAT;
+                        func.setReturnType(type, retVar.getId());
                     }
                 }
                 else
@@ -231,12 +243,18 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
     {
         scopeTree.put(ctx, currentScope);
 
-        if (ctx.identifier().getText().equals("print")){
-            System.out.println("print function called");
-        }else {
-            Function func = funcmap.get(ctx.identifier().getText());
+        String funcName = ctx.identifier().getText();
+        Function func = funcmap.get(funcName);
+
+        if (funcName.equals("print") || funcName.equals("rand")){
+
+            System.out.println("reserved function called");
+            funcTree.put(ctx, func);
+        }
+        else
+        {
             if (func == null) {
-                System.err.println("calling function " + ctx.identifier().getText() + " that does not exist, exiting..");
+                System.err.println("calling function " + funcName + " that does not exist, exiting..");
                 return null;
             } else if (ctx.extendedparams().varvalue().size() != func.getParams().size()) {
                 System.err.println("calling function with the wrong amount of params");
@@ -244,10 +262,10 @@ public class TypeChecker extends LastMinuteBaseVisitor<Types>
             }
             System.out.println("succesfully called function: " + func.getName());
 
-            funcTree.put(ctx, func);
         }
 
-
+        if (func != null)
+            funcTree.put(ctx, func);
 
         return super.visitFunccall(ctx);
     }

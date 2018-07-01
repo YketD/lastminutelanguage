@@ -1,8 +1,2 @@
-myFunc() {
-return 1;
-}
-
-asd: myFunc();;
-print(asd);
-
-myFunc();
+result: rand();
+print(result);
